@@ -15,7 +15,7 @@ browserified = transform (filename) ->
 
 # Our JS
 gulp.task 'app_js', ->
-  browserify [__dirname + '/lib/javascripts/index.cjsx']
+  browserify [__dirname + '/lib/example/index.cjsx']
     .bundle()
       .on 'error', (err) ->
         console.log err.message # should replace with gulp-util?
@@ -47,6 +47,7 @@ gulp.task 'app_styles', ->
 
 gulp.task 'watch', ->
   gulp.watch './lib/javascripts/**/*', ['app_js']
+  gulp.watch './lib/example/**/*', ['app_js']
   gulp.watch './lib/styles/*.styl', ['app_styles']
 
 gulp.task 'webserver', ->
