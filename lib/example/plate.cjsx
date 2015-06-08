@@ -17,18 +17,15 @@ Plate = React.createClass
       width  = window.innerWidth
       height = window.innerHeight
     >
-      {@renderWells()}
+      <Wells
+        width       = window.innerWidth
+        height      = window.innerHeight
+        top         = 0
+        left        = 0
+        rowScale    = @props.rowScale
+        columnScale = @props.columnScale
+      />
     </Surface>
-
-  renderWells: ->
-    <Wells
-      width       = window.innerWidth
-      height      = window.innerHeight
-      top         = 0
-      left        = 0
-      rowScale    = @props.rowScale
-      columnScale = @props.columnScale
-    />
 
   renderText: ->
     <Text
@@ -59,20 +56,18 @@ Wells = React.createClass
 
     for row in @props.rowScale.domain
       rowProjection = @props.rowScale.map row
-      # color = Styling.mapRowToColor row
       for column in @props.columnScale.domain
         columnProjection = @props.columnScale.map column
         key = dataManager.keyForWell row, column
         isSelected = key is @props.selectedWellKey
         continue if @props.drawSelected and not isSelected
-        console.log rowProjection, columnProjection
         textStyle = @textStyle()
         textStyle.top = rowProjection
         textStyle.left = columnProjection
         <Text
           style = textStyle
         >
-          {"#{row}||#{column}"}
+          {"#{row}-#{column}"}
         </Text>
 
   textStyle: ->
@@ -80,17 +75,5 @@ Wells = React.createClass
     width: 100
     lineHeight: 20
     fontSize: 12
-
-
-        # <Circle
-        #   x         = {columnProjection + @model.origin[0] + 4}
-        #   y         = {rowProjection + @model.origin[1] - 3}
-        #   r         = {if isSelected then maxRadius else maxRadius - 2}
-        #   key       = key
-        #   stroke    = color
-        #   lineWidth = {if isSelected then 8 else 2}
-        #   fill      = color
-        #   opacity   = {if isSelected then 1 else .3}
-        # />
 
 module.exports = Plate
