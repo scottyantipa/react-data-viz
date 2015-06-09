@@ -7,12 +7,16 @@ Point,
 Text}       = ReactCanvas
 
 
+###
+Renders a plate given the number of rows/columns
+###
 Plate = React.createClass
   COL_LABEL_AXIS_HEIGHT: 30
-  ROW_LABEL_AXIS_HEIGHT: 30
+  ROW_LABEL_AXIS_WIDTH: 30
 
   render: ->
-    origin = @getOrigin()
+    origin    = @getOrigin()
+    axisTextStyle = @axisLabelStyle()
 
     <Surface
       top    = 0
@@ -29,22 +33,27 @@ Plate = React.createClass
       <ColumnHeaders
         origin      = origin
         columnScale = @props.columnScale
-        textStyle   = @axisLabelStyle()
+        textStyle   = axisTextStyle
+      />
+
+      <RowHeaders
+        origin = origin
+        rowScale = @props.rowScale
+        textStyle   = axisTextStyle
       />
 
     </Surface>
 
   getOrigin: ->
-    x: @ROW_LABEL_AXIS_HEIGHT
+    x: @ROW_LABEL_AXIS_WIDTH
     y: @COL_LABEL_AXIS_HEIGHT
-
 
   getInitialState: ->
     @stateFromProps @props
 
   stateFromProps: (props) ->
     height: props.rowScale.range[1] + @COL_LABEL_AXIS_HEIGHT
-    width:  props.columnScale.range[1] + @ROW_LABEL_AXIS_HEIGHT
+    width:  props.columnScale.range[1] + @ROW_LABEL_AXIS_WIDTH
 
   componentWillReceiveProps: (newProps) ->
     @setState @stateFromProps(newProps)
@@ -64,13 +73,33 @@ ColumnHeaders = React.createClass
 
   renderColumnLabels: ->
     _.map @props.columnScale.domain, (column) =>
-      left = @props.columnScale.map(column) + (@props.origin.x - 4) # substract radius
-      top = 0
-      width = 500
+      left  = @props.columnScale.map(column) + @props.origin.x - 4 # substract radius
+      top   = 0
+      width = 100 # TODO: measureText
       style = _.extend {left, top, width}, @props.textStyle
-      console.log style, column
+
       <Text style = style>
         {column.toString()}
+      </Text>
+
+
+RowHeaders = React.createClass
+  displayName: 'RowHeaders'
+
+  render: ->
+    <Group>
+      {@renderRowLabels()}
+    </Group>
+
+  renderRowLabels: ->
+    _.map @props.rowScale.domain, (row) =>
+      top = @props.rowScale.map(row) + @props.origin.y - 8
+      left = 0
+      width = 100 # TODO: measuretext
+      style = _.extend {left, top, width}, @props.textStyle
+
+      <Text style = style>
+        {row.toString()}
       </Text>
 
 Wells = React.createClass
