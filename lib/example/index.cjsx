@@ -28,12 +28,12 @@ Index = React.createClass
   getRowScale: ->
     new OrdinalScale
       domain: [1..dataManager.NUM_ROWS]
-      range: [0, window.innerHeight]
+      range: [0, 450]
 
   getColumnScale: ->
     new OrdinalScale
       domain: [1..dataManager.NUM_COLUMNS]
-      range: [0, window.innerWidth;]
+      range: [0, 750]
 
 
 $ ->
