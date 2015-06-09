@@ -6,11 +6,11 @@ Group,
 Circle,
 Point,
 FontFace,
-Text,
 Layer}      = ReactCanvas
 
 
 Plate = React.createClass
+
   render: ->
     <Surface
       top    = 0
@@ -18,16 +18,15 @@ Plate = React.createClass
       width  = window.innerWidth
       height = window.innerHeight
     >
-      <Text style={@textStyle()}>test text</Text>
+      <Wells
+        width       = window.innerWidth
+        height      = window.innerHeight
+        top         = 0
+        left        = 0
+        rowScale    = @props.rowScale
+        columnScale = @props.columnScale
+      />
     </Surface>
-
-  textStyle: ->
-    top:         20
-    left:        20
-    height:      20
-    width:       window.innerWidth
-    lineHeight:  20
-    fontSize:    12
 
 Wells = React.createClass
   displayName: 'Wells'
@@ -49,9 +48,15 @@ Wells = React.createClass
         key = dataManager.keyForWell row, column
         isSelected = key is @props.selectedWellKey
         continue if @props.drawSelected and not isSelected
-
+        radius = 5
+        frame =
+          x: columnProjection
+          y: rowProjection
+          width: radius + 5
+          height: radius + 5
         <Point
-          radius = 5
+          radius = radius
+          frame = frame
         />
 
 module.exports = Plate
