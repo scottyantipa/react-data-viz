@@ -1,0 +1,3 @@
+[submodule "deps/react-canvas"]
+	path = deps/react-canvas
+	url = https://github.com/scottyantipa/react-canvas

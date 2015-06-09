@@ -1,15 +1,16 @@
-React       = require 'react'
 dataManager = require './dataManager.coffee'
-
+React       = require 'react'
+ReactCanvas = require 'react-canvas'
 {Surface,
 Group,
 Circle,
-Text,
+Point,
 FontFace,
-Layer}      = require 'react-canvas'
+Text,
+Layer}      = ReactCanvas
+
 
 Plate = React.createClass
-
   render: ->
     <Surface
       top    = 0
@@ -17,22 +18,8 @@ Plate = React.createClass
       width  = window.innerWidth
       height = window.innerHeight
     >
-      <Wells
-        width       = window.innerWidth
-        height      = window.innerHeight
-        top         = 0
-        left        = 0
-        rowScale    = @props.rowScale
-        columnScale = @props.columnScale
-      />
+      <Text style={@textStyle()}>test text</Text>
     </Surface>
-
-  renderText: ->
-    <Text
-      style = @textStyle()
-    >
-      Some text here for you
-    </Text>
 
   textStyle: ->
     top:         20
@@ -43,6 +30,7 @@ Plate = React.createClass
     fontSize:    12
 
 Wells = React.createClass
+  displayName: 'Wells'
 
   render: ->
     <Group>
@@ -61,19 +49,9 @@ Wells = React.createClass
         key = dataManager.keyForWell row, column
         isSelected = key is @props.selectedWellKey
         continue if @props.drawSelected and not isSelected
-        textStyle = @textStyle()
-        textStyle.top = rowProjection
-        textStyle.left = columnProjection
-        <Text
-          style = textStyle
-        >
-          {"#{row}-#{column}"}
-        </Text>
 
-  textStyle: ->
-    height: 20
-    width: 100
-    lineHeight: 20
-    fontSize: 12
+        <Point
+          radius = 5
+        />
 
 module.exports = Plate

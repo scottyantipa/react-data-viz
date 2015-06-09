@@ -1,8 +1,5 @@
 React        = require 'react'
-ReactCanvas  = require 'react-canvas'
 Plate        = require './plate.cjsx'
-{Surface,
-Text}        = ReactCanvas
 OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'
 dataManager  = require './dataManager.coffee'
 
