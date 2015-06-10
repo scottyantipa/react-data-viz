@@ -55,7 +55,6 @@ gulp.task 'webserver', ->
     .pipe webserver(
       fallback:   'index.html' # gulp-webserver needs this for html5
       livereload: true
-      open:       true
       directoryListing:
         enable: true
         path:   'public'

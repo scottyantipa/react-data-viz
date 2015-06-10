@@ -1,8 +1,11 @@
 dataManager = require './dataManager.coffee'
 React       = require 'react'
 ReactCanvas = require 'react-canvas'
+OrdinalAxis = require '../javascripts/views/OrdinalAxis.cjsx'
 {Surface,
 Group,
+Text,
+Layer,
 Point,
 Text}       = ReactCanvas
 
@@ -15,34 +18,42 @@ Plate = React.createClass
   ROW_LABEL_AXIS_WIDTH: 30
 
   render: ->
-    origin    = @getOrigin()
-    axisTextStyle = @axisLabelStyle()
-
     <Surface
       top    = 0
       left   = 0
       width  = @state.width
       height = @state.height
     >
-      <Wells
-        origin      = origin
-        rowScale    = @props.rowScale
-        columnScale = @props.columnScale
-      />
 
-      <ColumnHeaders
-        origin      = origin
-        columnScale = @props.columnScale
-        textStyle   = axisTextStyle
-      />
-
-      <RowHeaders
-        origin = origin
-        rowScale = @props.rowScale
-        textStyle   = axisTextStyle
-      />
+    {@renderColumnLabels()}
+    {@renderRowLabels()}
+    {@renderWells()}
 
     </Surface>
+
+  renderWells: ->
+    <Wells
+      origin      = @getOrigin()
+      rowScale    = @props.rowScale
+      columnScale = @props.columnScale
+    />
+
+  # This should eventually be it's own surface
+  renderColumnLabels: ->
+    <OrdinalAxis
+      origin    = @getOrigin()
+      textStyle = @axisLabelStyle()
+      vertical  = false
+      scale     = @props.columnScale
+    />
+
+  renderRowLabels: ->
+    <OrdinalAxis
+      textStyle = @axisLabelStyle()
+      origin    = @getOrigin()
+      vertical  = true
+      scale     = @props.rowScale
+    />
 
   getOrigin: ->
     x: @ROW_LABEL_AXIS_WIDTH
@@ -62,45 +73,6 @@ Plate = React.createClass
     lineHeight: 20
     height: 20
     fontSize: 12
-
-ColumnHeaders = React.createClass
-  displayName: 'ColumnHeaders'
-
-  render: ->
-    <Group>
-      {@renderColumnLabels()}
-    </Group>
-
-  renderColumnLabels: ->
-    _.map @props.columnScale.domain, (column) =>
-      left  = @props.columnScale.map(column) + @props.origin.x - 4 # substract radius
-      top   = 0
-      width = 100 # TODO: measureText
-      style = _.extend {left, top, width}, @props.textStyle
-
-      <Text style = style>
-        {column.toString()}
-      </Text>
-
-
-RowHeaders = React.createClass
-  displayName: 'RowHeaders'
-
-  render: ->
-    <Group>
-      {@renderRowLabels()}
-    </Group>
-
-  renderRowLabels: ->
-    _.map @props.rowScale.domain, (row) =>
-      top = @props.rowScale.map(row) + @props.origin.y - 8
-      left = 0
-      width = 100 # TODO: measuretext
-      style = _.extend {left, top, width}, @props.textStyle
-
-      <Text style = style>
-        {row.toString()}
-      </Text>
 
 Wells = React.createClass
   displayName: 'Wells'
