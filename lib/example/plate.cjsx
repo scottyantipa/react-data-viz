@@ -2,6 +2,7 @@ dataManager = require './dataManager.coffee'
 React       = require 'react'
 ReactCanvas = require 'react-canvas'
 OrdinalAxis = require '../javascripts/views/OrdinalAxis.cjsx'
+Axis        = require '../javascripts/views/Axis.cjsx'
 Wells       = require './Wells.cjsx'
 {Surface,
 Group,
@@ -23,11 +24,9 @@ Plate = React.createClass
       width  = {@props.columnScale.range[1] + @ORIGIN.x}
       height = {@props.rowScale.range[1] + @ORIGIN.y}
     >
-
       {@renderColumnLabels()}
       {@renderRowLabels()}
       {@renderWells()}
-
     </Surface>
 
   renderWells: ->
@@ -39,19 +38,21 @@ Plate = React.createClass
 
   # This should eventually be it's own surface
   renderColumnLabels: ->
-    <OrdinalAxis
+    <Axis
       origin    = @ORIGIN
-      textStyle = @axisLabelStyle()
-      vertical  = false
       scale     = @props.columnScale
+      axis      = 'x'
+      placement = 'above'
+      direction = 'right'
     />
 
   renderRowLabels: ->
-    <OrdinalAxis
-      textStyle = @axisLabelStyle()
+    <Axis
       origin    = @ORIGIN
-      vertical  = true
       scale     = @props.rowScale
+      axis      = 'y'
+      placement = 'left'
+      direction = 'down'
     />
 
   axisLabelStyle: ->

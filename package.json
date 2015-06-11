@@ -2,7 +2,7 @@
   "name": "ReactViz",
   "version": "0.0.1",
   "dependencies": {
-    "react-canvas": "https://github.com/scottyantipa/react-canvas/tarball/master",
+    "react-canvas": "https://github.com/scottyantipa/react-canvas/tarball/scott-point-and-multi-arc",
     "react": "0.13.3",
     "coffee-script": "1.9.2",
     "gulp": "3.8.11",
