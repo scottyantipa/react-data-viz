@@ -15,13 +15,14 @@ Axis = React.createClass
 
   renderAxisLine: ->
     [x0, y0] = @projectDomainValue @props.scale.domain[0]
-    [x1, y1] = @projectDomainValue @props.scale.domain[1]
+    [x1, y1] = @projectDomainValue _.last(@props.scale.domain)
     frame = {
       x0
       y0
       x1
       y1
     }
+
     <Line
       frame = frame
     />
@@ -31,6 +32,9 @@ Axis = React.createClass
   renderLabels: ->
     _.map @props.scale.ticks(50), (tick, index) =>
       [left, top] = @projectDomainValue tick
+      [offsetLeft, offsetTop] = @offsetLabelForTick tick
+      left += offsetLeft
+      top += offsetTop
       width = 200
       style = _.extend {left, top, width}, (@props.textStyle ? AxisUtils.defaultTextStyle())
 
@@ -41,6 +45,11 @@ Axis = React.createClass
         {tick.toString()}
       </Text>
 
+  ###
+  Given a value in the domain of the scale, project it to
+  pixel values based on the orientation of this axis (x,y) and direction
+  (e.g. 'left', 'right',...)
+  ###
   projectDomainValue: (tick) ->
     {axis, direction, placement, origin} = @props
     projected = @props.scale.map tick
@@ -53,9 +62,7 @@ Axis = React.createClass
             when 'left' then -projected + origin.x
 
         when 'y'
-          switch placement
-            when 'left' then origin.x - AxisUtils.horiz_offset
-            when 'right' then origin.x + AxisUtils.horiz_offset
+          origin.x
 
     top =
       switch axis
@@ -64,10 +71,37 @@ Axis = React.createClass
             when 'down' then projected + origin.y # drawing in positive direction
             when 'up' then -projected + origin.y
         when 'x'
-          switch placement
-            when 'above' then origin.y - AxisUtils.vert_offset
-            when 'below' then origin.y + AxisUtils.vert_offset
+          origin.y
 
     [left, top]
+
+  offsetLabelForTick: (tick) ->
+    {axis, direction, placement, origin} = @props
+
+    left =
+      switch axis
+        when 'x'
+          switch direction
+            when 'right' then origin.x
+            when 'left' then -origin.x
+
+        when 'y'
+          switch placement
+            when 'left' then -AxisUtils.horiz_offset
+            when 'right' then AxisUtils.horiz_offset
+
+    top =
+      switch axis
+        when 'y'
+          switch direction
+            when 'down' then origin.y
+            when 'up' then 0 #-origin.y
+        when 'x'
+          switch placement
+            when 'above' then -AxisUtils.vert_offset
+            when 'below' then AxisUtils.vert_offset
+
+    [left, top]
+
 
 module.exports = Axis

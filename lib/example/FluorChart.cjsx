@@ -22,7 +22,7 @@ FluorChart = React.createClass
   # 30 is the padding I'm using around all of the axis
   getInitialState: ->
     origin:
-      x: 30
+      x: 100
       y: @props.fluorScale.range[1]
 
   displayName: 'Fluorescense'

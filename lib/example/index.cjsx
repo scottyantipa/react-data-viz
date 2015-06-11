@@ -17,13 +17,7 @@ Index = React.createClass
     if not _.all([@state.rowScale, @state.columnScale, @state.cycleScale, @state.fluorScale])
       return <div>Loading...</div>
     <div className = 'example-qpcr'>
-      {@renderPlate()}
-      <div className = 'pcr-line-chart'>
-        <FluorChart
-          cycleScale  = @state.cycleScale
-          fluorScale  = @state.fluorScale
-        />
-      </div>
+      {@renderFluorChart()}
     </div>
 
   renderPlate: ->
@@ -31,6 +25,14 @@ Index = React.createClass
       <Plate
         rowScale    = @state.rowScale
         columnScale = @state.columnScale
+      />
+    </div>
+
+  renderFluorChart: ->
+    <div className = 'pcr-line-chart'>
+      <FluorChart
+        cycleScale  = @state.cycleScale
+        fluorScale  = @state.fluorScale
       />
     </div>
 

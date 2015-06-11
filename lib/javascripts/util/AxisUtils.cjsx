@@ -25,7 +25,7 @@ AxisUtils =
 
   # how much to offset axis labels by so they dont render on the axis
   # This is currently not parameterized and needs to change
-  horiz_offset: 30
+  horiz_offset: 20
   vert_offset:  20
 
   defaultTextStyle: ->
