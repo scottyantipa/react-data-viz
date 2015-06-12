@@ -1,19 +1,22 @@
 {Surface,
-Point}      = require 'react-canvas'
-React       = require 'react'
-OrdinalAxis = require '../javascripts/views/OrdinalAxis.cjsx'
-Axis        = require '../javascripts/views/Axis.cjsx'
+Point}       = require 'react-canvas'
+React        = require 'react'
+Axis         = require '../javascripts/views/Axis.cjsx'
+OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'
+LinearScale  = require '../javascripts/util/LinearScale.coffee'
 
 ###
 Renders a qCPR line chart showing Fluorescense vs. Cycle
 ###
 FluorChart = React.createClass
+  displayName: 'Fluorescense'
+
   render: ->
     <Surface
       top    = 0
       left   = 0
-      width  = {@props.cycleScale.range[1] + 60}
-      height = {@props.fluorScale.range[1] + 60}
+      width  = {@state.cycleScale.range[1] + 60}
+      height = {@state.fluorScale.range[1] + 60}
     >
       {@renderCycleAxis()}
       {@renderFluorAxis()}
@@ -21,15 +24,16 @@ FluorChart = React.createClass
 
   # 30 is the padding I'm using around all of the axis
   getInitialState: ->
-    origin:
-      x: 100
-      y: @props.fluorScale.range[1]
+    fluorScale = @getFluorScale()
+    cycleScale = @getCycleScale()
 
-  displayName: 'Fluorescense'
-
-  propTypes:
-    cycleScale: React.PropTypes.object.isRequired
-    fluorScale: React.PropTypes.object.isRequired
+    {
+      fluorScale
+      cycleScale
+      origin:
+        x: 50
+        y: fluorScale.range[1]
+    }
 
   renderCycleAxis: ->
     <Axis
@@ -37,7 +41,7 @@ FluorChart = React.createClass
       axis = 'x'
       direction = 'right'
       placement = 'below'
-      scale = @props.cycleScale
+      scale = @state.cycleScale
     />
 
   renderFluorAxis: ->
@@ -46,7 +50,17 @@ FluorChart = React.createClass
       axis = 'y'
       direction = 'up'
       placement = 'left'
-      scale = @props.fluorScale
+      scale = @state.fluorScale
     />
+
+  getCycleScale: ->
+    new OrdinalScale
+      domain: @props.cycleResults.domain
+      range: [0, window.innerWidth - 100]
+  getFluorScale: ->
+    new LinearScale
+      domain: @props.fluorResults.domain
+      range: [0, 300]
+
 
 module.exports = FluorChart

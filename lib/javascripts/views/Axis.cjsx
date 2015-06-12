@@ -2,27 +2,44 @@
 Line,
 Group}    = require 'react-canvas'
 React     = require 'react'
-AxisUtils = require '../util/AxisUtils.cjsx'
 
+###
+Renders the axis for a chart.  See propTypes for description
+of how to render x or y axis, place labels, etc.
+###
 Axis = React.createClass
   render: ->
     <Group>
-      {@renderAxisLine()}
       {@renderLabels()}
+
+      {
+        if @props.showAxisLine then @renderAxisLine()
+      }
     </Group>
 
-  propTypes: AxisUtils.proTypes
+  propTypes:
+    axis:         React.PropTypes.bool.isRequired # 'x' or 'y'
+    direction:    React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
+    placement:    React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
+    scale:        React.PropTypes.object.isRequired
+    origin:       React.PropTypes.object # assumed to be [0,0]
+    textStyle:    React.PropTypes.object
+    showAxisLine: React.PropTypes.bool
+
+  getDefaultProps: ->
+    origin:        {x: 0, y: 0}
+    showAxisLine: true
+
+
+  # how much to offset axis labels by so they dont render on the axis
+  # This is currently not parameterized and needs to change
+  horiz_offset: 30
+  vert_offset:  20
 
   renderAxisLine: ->
     [x0, y0] = @projectDomainValue @props.scale.domain[0]
     [x1, y1] = @projectDomainValue _.last(@props.scale.domain)
-    frame = {
-      x0
-      y0
-      x1
-      y1
-    }
-
+    frame = {x0,y0,x1,y1}
     <Line
       frame = frame
     />
@@ -36,7 +53,7 @@ Axis = React.createClass
       left += offsetLeft
       top += offsetTop
       width = 200
-      style = _.extend {left, top, width}, (@props.textStyle ? AxisUtils.defaultTextStyle())
+      style = _.extend {left, top, width}, (@props.textStyle ? @defaultTextStyle())
 
       <Text
         style = style
@@ -81,27 +98,27 @@ Axis = React.createClass
     left =
       switch axis
         when 'x'
-          switch direction
-            when 'right' then origin.x
-            when 'left' then -origin.x
-
+          0
         when 'y'
           switch placement
-            when 'left' then -AxisUtils.horiz_offset
-            when 'right' then AxisUtils.horiz_offset
+            when 'left' then -@horiz_offset
+            when 'right' then @horiz_offset
 
     top =
       switch axis
         when 'y'
-          switch direction
-            when 'down' then origin.y
-            when 'up' then 0 #-origin.y
+          0
         when 'x'
           switch placement
-            when 'above' then -AxisUtils.vert_offset
-            when 'below' then AxisUtils.vert_offset
+            when 'above' then -@vert_offset
+            when 'below' then @vert_offset
 
     [left, top]
 
+
+  defaultTextStyle: ->
+    lineHeight: 20
+    height:     20
+    fontSize:   12
 
 module.exports = Axis
