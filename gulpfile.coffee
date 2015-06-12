@@ -1,4 +1,5 @@
-process.env.BROWSERIFYSHIM_DIAGNOSTICS=1
+# For diagnosing browserify-shim in console
+# process.env.BROWSERIFYSHIM_DIAGNOSTICS=1
 
 gulp       = require 'gulp'
 browserify = require 'browserify'

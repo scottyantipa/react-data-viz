@@ -2,18 +2,19 @@
 var ReactDataViz;
 
 ReactDataViz = {
-  Axis: require('./javascripts/views/Axis.cjsx')
+  Axis: require('./javascripts/views/Axis.cjsx'),
+  Line: require('../node_modules/react-canvas/lib/Line.js')
 };
 
 module.exports = ReactDataViz;
 
 
-},{"./javascripts/views/Axis.cjsx":2}],2:[function(require,module,exports){
+},{"../node_modules/react-canvas/lib/Line.js":20,"./javascripts/views/Axis.cjsx":2}],2:[function(require,module,exports){
 var Axis, Group, Line, React, Text, ref;
 
 ref = require('react-canvas'), Text = ref.Text, Line = ref.Line, Group = ref.Group;
 
-React = (window.Reactasdf);
+React = (window.React);
 
 
 /*
