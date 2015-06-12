@@ -11,7 +11,6 @@ Axis = React.createClass
   render: ->
     <Group>
       {@renderLabels()}
-
       {
         if @props.showAxisLine then @renderAxisLine()
       }
