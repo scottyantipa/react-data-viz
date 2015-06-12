@@ -14,7 +14,6 @@ Index = React.createClass
   render: ->
     if not @state.fetched
       return <div>Loading...</div>
-
     <div className = 'example-qpcr'>
       {@renderPlate()}
       {@renderFluorChart()}
@@ -29,10 +28,12 @@ Index = React.createClass
     </div>
 
   renderFluorChart: ->
+    {results} = dataManager.state
     <div className = 'pcr-line-chart'>
       <FluorChart
-        cycleResults = dataManager.state.results.groups[0]
-        fluorResults = dataManager.state.results.projections[0]
+        cycleResults  = results.groups[0]
+        fluorResults  = results.projections[0]
+        resultsByWell = results.resultsByWell
       />
     </div>
 

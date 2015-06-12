@@ -4,9 +4,9 @@ Responsible for creating/getting/storing data
 DataManager =
   KEY_SEPARATOR: "|"
   COLON: ":" # used in key formatting
-  NUM_COLUMNS: 24
-  NUM_ROWS: 16
-  NUM_CYCLES: 40
+  NUM_COLUMNS: 12
+  NUM_ROWS: 8
+  NUM_CYCLES: 30
   state:
     results: []
 
@@ -24,7 +24,7 @@ DataManager =
   parseResults: (resultsByWell) ->
     resultsByCycle = {}
     minCycle = 1
-    maxCycle = 40
+    maxCycle = 30
     minFluor = Infinity
     maxFluor = -Infinity
     for wellKey, results of resultsByWell
@@ -47,7 +47,7 @@ DataManager =
         ,
 
           name: "well"
-          domain: [1..384]
+          domain: [1..96]
 
       ]
 

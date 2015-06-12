@@ -5,9 +5,9 @@ dataManager = require './dataManager'
 # IN dataManager and should be abstracted elsewhere
 KEY_SEPARATOR = "|"
 COLON = ":" # used in key formatting
-NUM_COLUMNS = 24
-NUM_ROWS = 16
-NUM_CYCLES = 40
+NUM_COLUMNS = 12
+NUM_ROWS = 8
+NUM_CYCLES = 30
 MAX_FLUOR = 5000
 MIN_FLUOR = 0
 

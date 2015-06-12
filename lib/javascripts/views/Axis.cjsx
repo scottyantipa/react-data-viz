@@ -18,7 +18,7 @@ Axis = React.createClass
     </Group>
 
   propTypes:
-    axis:         React.PropTypes.bool.isRequired # 'x' or 'y'
+    axis:         React.PropTypes.string.isRequired # 'x' or 'y'
     direction:    React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
     placement:    React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
     scale:        React.PropTypes.object.isRequired
