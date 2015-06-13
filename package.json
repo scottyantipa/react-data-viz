@@ -1,6 +1,6 @@
 {
   "name": "react-data-viz",
-  "version": "0.0.1",
+  "version": "0.0.01",
   "dependencies": {
     "react-canvas": "https://github.com/scottyantipa/react-canvas/tarball/scott-point-and-multi-arc"
   },
