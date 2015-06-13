@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "keywords": ["React", "data", "dataviz"],
   "main": "dist/ReactDataViz.js",
+  "ignore": [],
   "homepage": "https://github.com/scottyantipa/react-data-viz",
   "authors": [
     "Scott Antipa <scottantipa@gmail.com>"
