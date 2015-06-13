@@ -1,6 +1,9 @@
 {
   "name": "ReactDataViz",
+  "description": "Use react to render data visualization to <canvas>.",
   "version": "0.0.0",
+  "keywords": ["React", "data", "dataviz"],
+  "main": "dist/ReactDataViz.js",
   "homepage": "https://github.com/scottyantipa/react-data-viz",
   "authors": [
     "Scott Antipa <scottantipa@gmail.com>"
