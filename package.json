@@ -1,6 +1,9 @@
 {
-  "name": "ReactViz",
+  "name": "react-data-viz",
+  "description": "Use react to render data visualization to <canvas>.",
   "version": "0.0.1",
+  "main": "dist/ReactDataViz.js",
+  "keywords": ["React", "data", "dataviz"],
   "dependencies": {
     "react-canvas": "https://github.com/scottyantipa/react-canvas/tarball/scott-point-and-multi-arc"
   },
