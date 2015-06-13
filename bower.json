@@ -3,6 +3,10 @@
   "description": "Use react to render data visualization to <canvas>.",
   "version": "0.0.0",
   "keywords": ["React", "data", "dataviz"],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/scottyantipa/react-data-viz.git"
+  },
   "main": "dist/ReactDataViz.js",
   "ignore": [],
   "homepage": "https://github.com/scottyantipa/react-data-viz",
