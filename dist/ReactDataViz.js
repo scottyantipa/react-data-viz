@@ -6,7 +6,7 @@ ReactDataViz = {
   Line: require('../node_modules/react-canvas/lib/Line.js')
 };
 
-module.exports = ReactDataViz;
+window.ReactDataViz = ReactDataViz;
 
 
 },{"../node_modules/react-canvas/lib/Line.js":20,"./javascripts/views/Axis.cjsx":2}],2:[function(require,module,exports){
