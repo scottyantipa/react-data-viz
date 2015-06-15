@@ -1,15 +1,11 @@
-dataManager = require './dataManager.coffee'
-React       = require 'react'
-ReactCanvas = require 'react-canvas'
+dataManager  = require './dataManager.coffee'
+React        = require 'react'
+ReactCanvas  = require 'react-canvas'
 OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'
-Axis        = require '../javascripts/views/Axis.cjsx'
-Wells       = require './Wells.cjsx'
+Axis         = require '../javascripts/views/Axis.cjsx'
+Wells        = require './Wells.cjsx'
 {Surface,
-Group,
-Text,
-Layer,
-Point,
-Text}       = ReactCanvas
+Point}       = ReactCanvas
 
 ###
 Renders a plate given the number of rows/columns
@@ -67,10 +63,5 @@ Plate = React.createClass
       direction    = 'down'
       showAxisLine = false
     />
-
-  axisLabelStyle: ->
-    lineHeight: 20
-    height: 20
-    fontSize: 12
 
 module.exports = Plate
