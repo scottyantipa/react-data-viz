@@ -86,5 +86,5 @@ gulp.task 'clean_dist', ->
     .pipe plumber()
     .pipe clean()
 
-gulp.task 'default', ['example_js', 'vendor_js', 'app_styles']
+gulp.task 'default', ['example_js', 'vendor_js', 'app_styles', 'dist']
 gulp.task 'serve', ['webserver', 'watch']
