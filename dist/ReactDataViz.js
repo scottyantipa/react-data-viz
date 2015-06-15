@@ -177,7 +177,7 @@ var Axis, Group, Line, React, Text, ref;
 
 ref = require('react-canvas'), Text = ref.Text, Line = ref.Line, Group = ref.Group;
 
-React = (window.React);
+React = require('react');
 
 
 /*
@@ -327,7 +327,7 @@ Axis = React.createClass({
 module.exports = Axis;
 
 
-},{"react-canvas":25}],5:[function(require,module,exports){
+},{"react":197,"react-canvas":25}],5:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1016,7 +1016,7 @@ module.exports = {
 // Adapted from ReactART:
 // https://github.com/reactjs/react-art
 
-var React = (window.React);
+var React = require('react');
 var ReactMultiChild = require('react/lib/ReactMultiChild');
 var assign = require('react/lib/Object.assign');
 var emptyObject = require('react/lib/emptyObject');
@@ -1141,7 +1141,7 @@ var ContainerMixin = assign({}, ReactMultiChild.Mixin, {
 
 module.exports = ContainerMixin;
 
-},{"react/lib/Object.assign":68,"react/lib/ReactMultiChild":113,"react/lib/emptyObject":157}],10:[function(require,module,exports){
+},{"react":197,"react/lib/Object.assign":68,"react/lib/ReactMultiChild":113,"react/lib/emptyObject":157}],10:[function(require,module,exports){
 'use strict';
 
 var ImageCache = require('./ImageCache');
@@ -3596,7 +3596,7 @@ module.exports = RenderLayer;
 (function (process){
 'use strict';
 
-var React = (window.React);
+var React = require('react');
 var ReactUpdates = require('react/lib/ReactUpdates');
 var invariant = require('react/lib/invariant');
 var ContainerMixin = require('./ContainerMixin');
@@ -3815,7 +3815,7 @@ var Surface = React.createClass({
 module.exports = Surface;
 
 }).call(this,require('_process'))
-},{"./ContainerMixin":9,"./DrawingUtils":10,"./FrameUtils":15,"./RenderLayer":26,"./hitTest":31,"./layoutNode":32,"_process":6,"react/lib/ReactUpdates":129,"react/lib/invariant":177}],28:[function(require,module,exports){
+},{"./ContainerMixin":9,"./DrawingUtils":10,"./FrameUtils":15,"./RenderLayer":26,"./hitTest":31,"./layoutNode":32,"_process":6,"react":197,"react/lib/ReactUpdates":129,"react/lib/invariant":177}],28:[function(require,module,exports){
 'use strict';
 
 var createComponent = require('./createComponent');
