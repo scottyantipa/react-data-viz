@@ -1,11 +1,9 @@
 dataManager  = require './dataManager.coffee'
 React        = require 'react'
-ReactCanvas  = require 'react-canvas'
+{Surface}    = require 'react-canvas'
 OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'
 Axis         = require '../javascripts/views/Axis.cjsx'
 Wells        = require './Wells.cjsx'
-{Surface,
-Point}       = ReactCanvas
 
 ###
 Renders a plate given the number of rows/columns

@@ -1,6 +1,5 @@
 {Surface,
-Line,
-Point}       = require 'react-canvas'
+Line}        = require 'react-canvas'
 React        = require 'react'
 Axis         = require '../javascripts/views/Axis.cjsx'
 OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'

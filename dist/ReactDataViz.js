@@ -34,7 +34,7 @@ LinearScale = (function() {
     this.computeDX();
     this.computeDY();
     this.k = this.dy / this.dx;
-    this.b = this.yValueAtZero();
+    this.b = this.domain[0] === 0 ? this.range[0] : this.range[0] + (this.k * this.domain[0]);
   }
 
   LinearScale.prototype.map = function(x) {
@@ -43,17 +43,6 @@ LinearScale = (function() {
 
   LinearScale.prototype.invert = function(y) {
     return (y - this.b) / this.k;
-  };
-
-  LinearScale.prototype.yValueAtZero = function() {
-    var x, xRatio;
-    x = this.domain[0];
-    if (x === 0) {
-      return this.range[0];
-    } else {
-      xRatio = x / this.dx;
-      return this.range[0] + (this.dy * xRatio);
-    }
   };
 
   LinearScale.prototype.computeDX = function() {

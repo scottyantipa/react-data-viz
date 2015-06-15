@@ -16,23 +16,20 @@ class LinearScale
     @computeDX()
     @computeDY()
     @k =  @dy / @dx
-    @b = @yValueAtZero()
+
+    # Find the value for y when x is 0
+    # This allows us to compute y = mx + b    x = @domain[0]
+    @b =
+      if @domain[0] is 0
+        @range[0]
+      else
+        @range[0] + (@k * @domain[0])
 
   map: (x) ->
     @k * x + @b
 
   invert: (y) ->
     (y - @b) / @k
-
-  # Find the value for y when x is 0
-  # This allows us to compute y = mx + b
-  yValueAtZero: ->
-    x = @domain[0]
-    if x is 0
-      @range[0]
-    else
-      xRatio = (x / @dx)
-      @range[0] + (@dy * xRatio)
 
   computeDX: ->
     @dx = Math.abs(@domain[1] - @domain[0])
