@@ -14,7 +14,7 @@ Wells = React.createClass
     </Group>
 
   renderWells: ->
-    maxRadius = @props.rowScale.k / 3
+    maxRadius = @props.rowScale.m / 3
     minRadius = 6
     if maxRadius < minRadius then maxRadius = minRadius + 2
 

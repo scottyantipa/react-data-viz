@@ -8,28 +8,23 @@ class LinearScale
   dx: 1 # change in domain
   dy: 1 # change in
 
-  # y = kx + b
-  k: null
+  # y = mx + b
+  m: null
   b: null
 
   constructor: ({@domain, @range}) ->
     @computeDX()
     @computeDY()
-    @k =  @dy / @dx
+    @m =  @dy / @dx
 
-    # Find the value for y when x is 0
-    # This allows us to compute y = mx + b    x = @domain[0]
-    @b =
-      if @domain[0] is 0
-        @range[0]
-      else
-        @range[0] + (@k * @domain[0])
+    # Find y intercept (the 'b' in y = mx + b)
+    @b = @range[0] - (@m * @domain[0]) # just a simple y = mx + b subsitution
 
   map: (x) ->
-    @k * x + @b
+    @m * x + @b
 
   invert: (y) ->
-    (y - @b) / @k
+    (y - @b) / m
 
   computeDX: ->
     @dx = Math.abs(@domain[1] - @domain[0])

@@ -25,7 +25,7 @@ LinearScale = (function() {
 
   LinearScale.prototype.dy = 1;
 
-  LinearScale.prototype.k = null;
+  LinearScale.prototype.m = null;
 
   LinearScale.prototype.b = null;
 
@@ -33,16 +33,16 @@ LinearScale = (function() {
     this.domain = arg.domain, this.range = arg.range;
     this.computeDX();
     this.computeDY();
-    this.k = this.dy / this.dx;
-    this.b = this.domain[0] === 0 ? this.range[0] : this.range[0] + (this.k * this.domain[0]);
+    this.m = this.dy / this.dx;
+    this.b = this.range[0] - (this.m * this.domain[0]);
   }
 
   LinearScale.prototype.map = function(x) {
-    return this.k * x + this.b;
+    return this.m * x + this.b;
   };
 
   LinearScale.prototype.invert = function(y) {
-    return (y - this.b) / this.k;
+    return (y - this.b) / m;
   };
 
   LinearScale.prototype.computeDX = function() {
@@ -122,13 +122,15 @@ OrdinalScale = (function(superClass) {
   };
 
   OrdinalScale.prototype.map = function(x, linearly) {
+    var index;
     if (linearly == null) {
       linearly = false;
     }
     if (linearly) {
       return OrdinalScale.__super__.map.apply(this, arguments);
     } else {
-      return this.k * this.positionInDomain(x) + this.b;
+      index = this.domain.indexOf(x);
+      return index * this.m;
     }
   };
 

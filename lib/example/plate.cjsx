@@ -9,7 +9,7 @@ Wells        = require './Wells.cjsx'
 Renders a plate given the number of rows/columns
 ###
 Plate = React.createClass
-  ORIGIN: {x: 50, y: 50} # will need to be parameterized
+  ORIGIN: {x: 30, y: 30} # will need to be parameterized
 
   render: ->
     <Surface
@@ -49,7 +49,7 @@ Plate = React.createClass
       axis         = 'x'
       placement    = 'above'
       direction    = 'right'
-      showAxisLine = false
+      showAxisLine = true
     />
 
   renderRowLabels: ->
@@ -59,7 +59,7 @@ Plate = React.createClass
       axis         = 'y'
       placement    = 'left'
       direction    = 'down'
-      showAxisLine = false
+      showAxisLine = true
     />
 
 module.exports = Plate

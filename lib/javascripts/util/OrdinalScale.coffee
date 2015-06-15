@@ -30,7 +30,8 @@ class OrdinalScale extends LinearScale
     if linearly
       super
     else
-      @k * @positionInDomain(x) + @b
+      index = @domain.indexOf x
+      index * @m
 
   # Different from index in that position can be negative
   # if the x value passed is not in @domain and is less than all values
