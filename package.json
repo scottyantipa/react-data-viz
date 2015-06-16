@@ -1,7 +1,7 @@
 {
   "name": "react-data-viz",
   "dependencies": {
-    "react-canvas": "https://github.com/scottyantipa/react-canvas/tarball/master"
+    "react-canvas": "https://github.com/scottyantipa/react-canvas/tarball/scott-dist"
   },
   "devDependencies": {
     "coffee-script": "1.9.2",

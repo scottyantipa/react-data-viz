@@ -1,6 +1,6 @@
+{Surface,
+React}       = ReactCanvas
 dataManager  = require './dataManager.coffee'
-React        = require 'react'
-{Surface}    = require 'react-canvas'
 OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'
 Axis         = require '../javascripts/views/Axis.cjsx'
 Wells        = require './Wells.cjsx'
