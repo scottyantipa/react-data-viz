@@ -1,7 +1,6 @@
-
 {Group,
-React,
-Point} = ReactCanvas
+Point} = require 'react-canvas'
+React  = require 'react'
 
 ###
 Renders a grid of circles representing a plate

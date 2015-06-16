@@ -17,18 +17,15 @@ browserified = transform (filename) ->
   browserify(filename).bundle()
 
 # ReactDataViz.js
-gulp.task 'dist', ->
-  browserify [__dirname + '/lib/ReactDataViz.coffee']
-    .bundle()
-      .on 'error', (err) ->
-        console.log err.message # should replace with gulp-util?
-        @emit 'end'
-    .pipe source 'ReactDataViz.js'
-    .pipe gulp.dest './dist/'
-    .pipe livereload()
-
-  gulp.src "node_modules/react-canvas/dist/ReactCanvas.js"
-    .pipe gulp.dest './dist/'
+# gulp.task 'dist', ->
+#   browserify [__dirname + '/lib/index.js']
+#     .bundle()
+#       .on 'error', (err) ->
+#         console.log err.message # should replace with gulp-util?
+#         @emit 'end'
+#     .pipe source 'ReactDataViz.js'
+#     .pipe gulp.dest './dist/'
+#     .pipe livereload()
 
 # Our JS
 gulp.task 'example_js', ->
@@ -82,10 +79,8 @@ gulp.task 'clean_examples', ->
     .pipe plumber()
     .pipe clean()
 
-gulp.task 'clean_dist', ->
-  gulp.src "./dist/ReactDataViz.js", read: false
-    .pipe plumber()
-    .pipe clean()
 
-gulp.task 'default', ['example_js', 'vendor_js', 'app_styles', 'dist']
+
+gulp.task 'default', ['example_js', 'vendor_js', 'app_styles']
 gulp.task 'serve', ['webserver', 'watch']
+gulp.task 'clean', ['clean_examples']
