@@ -1,10 +1,10 @@
-{Surface,
+{React,
+Surface,
 Group,
 Text,
 Layer,
 Point,
-Text}        = require 'react-canvas'
-React        = require 'react'
+Text}        = ReactCanvas
 Plate        = require './plate.cjsx'
 FluorChart   = require './FluorChart.cjsx'
 dataManager  = require './dataManager.coffee'

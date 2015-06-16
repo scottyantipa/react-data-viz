@@ -27,6 +27,8 @@ gulp.task 'dist', ->
     .pipe gulp.dest './dist/'
     .pipe livereload()
 
+  gulp.src "node_modules/react-canvas/dist/ReactCanvas.js"
+    .pipe gulp.dest './dist/'
 
 # Our JS
 gulp.task 'example_js', ->
@@ -40,12 +42,11 @@ gulp.task 'example_js', ->
     .pipe livereload()
 
 # Vendor JS
-jsDepNames = [
-  "jquery/dist/jquery.js"
-  "underscore/underscore.js"
-  "react/react-with-addons.js"
+jsDepPaths = [
+  "./bower_components/jquery/dist/jquery.js"
+  "./bower_components/underscore/underscore.js"
+  "node_modules/react-canvas/dist/ReactCanvas.js"
 ]
-jsDepPaths = ("./bower_components/#{depName}" for depName in jsDepNames)
 gulp.task 'vendor_js', ->
   gulp.src jsDepPaths
     .pipe concat 'dependencies.js'
