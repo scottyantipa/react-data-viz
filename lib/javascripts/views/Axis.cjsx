@@ -1,7 +1,6 @@
 {Text,
 Line,
-Group}    = require 'react-canvas'
-React     = require 'react'
+Group}    = ReactCanvas
 
 ###
 Renders the axis for a chart.  See propTypes for description
