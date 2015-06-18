@@ -160,7 +160,6 @@ Axis = React.createClass
             when 'above' then origin.y + (3 * -@vert_offset)
             when 'below' then origin.y + (3 * @vert_offset)
 
-    console.log [left, top]
     [left, top]
 
   axisNameFontStyle: ->

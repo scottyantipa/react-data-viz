@@ -354,7 +354,6 @@ Axis = React.createClass({
           }
       }
     }).call(this);
-    console.log([left, top]);
     return [left, top];
   },
   axisNameFontStyle: function() {
@@ -383,11 +382,12 @@ Axis = require('./Axis.cjsx');
 
 TimeAxis = React.createClass({
   render: function() {
-    var axis, direction, origin, placement, ref, scale, textStyle;
-    ref = this.props, scale = ref.scale, axis = ref.axis, placement = ref.placement, direction = ref.direction, origin = ref.origin, textStyle = ref.textStyle;
+    var axis, axisName, direction, origin, placement, ref, scale, textStyle;
+    ref = this.props, axisName = ref.axisName, scale = ref.scale, axis = ref.axis, placement = ref.placement, direction = ref.direction, origin = ref.origin, textStyle = ref.textStyle;
     return React.createElement(Axis, {
+      "axisName": axisName,
       "origin": origin,
-      "labelForTick": this.labelForTick,
+      "labelForTick": this.labelForTickf,
       "scale": scale,
       "axis": axis,
       "placement": placement,
@@ -405,7 +405,7 @@ TimeAxis = React.createClass({
       timeLabel: timeLabel
     };
   },
-  labelForTick: function(epoch, format) {
+  labelForTick: function(epoch) {
     var time;
     time = moment(epoch).format(this.state.timeFormat);
     return "" + time + this.state.timeLabel;

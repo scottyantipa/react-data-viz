@@ -13,6 +13,7 @@ TimeSeriesChart = React.createClass
       height = {@state.temperatureScale.range[1] + 100}
     >
       <TimeAxis
+        axisName     = 'Time'
         scale        = @state.timeScale
         axis         = 'x'
         placement    = 'below'

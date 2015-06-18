@@ -3,10 +3,11 @@ Axis = require './Axis.cjsx'
 TimeAxis = React.createClass
 
   render: ->
-    {scale, axis, placement, direction, origin, textStyle} = @props
+    {axisName, scale, axis, placement, direction, origin, textStyle} = @props
     <Axis
+      axisName     = axisName
       origin       = origin
-      labelForTick = @labelForTick
+      labelForTick = @labelForTickf
       scale        = scale
       axis         = axis
       placement    = placement
@@ -33,7 +34,7 @@ TimeAxis = React.createClass
     {timeFormat, timeLabel}
 
   # Convert epoch -> nicely formatted time string using momentjs
-  labelForTick: (epoch, format) ->
+  labelForTick: (epoch) ->
     time =
       moment epoch
         .format @state.timeFormat
