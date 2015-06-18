@@ -11,6 +11,9 @@ Axis = React.createClass
     <Group>
       {@renderLabels()}
       {
+        if @props.axisName then @renderAxisName()
+      }
+      {
         if @props.showAxisLine then @renderAxisLine()
       }
     </Group>
@@ -20,6 +23,7 @@ Axis = React.createClass
     direction:    React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
     placement:    React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
     scale:        React.PropTypes.object.isRequired
+    axisName:     React.PropTypes.string # Rendered next to axis as a description
     origin:       React.PropTypes.object # assumed to be [0,0]
     textStyle:    React.PropTypes.object
     showAxisLine: React.PropTypes.bool
@@ -28,13 +32,14 @@ Axis = React.createClass
   getDefaultProps: ->
     origin:       {x: 0, y: 0}
     showAxisLine: true
+    axisName:     null
     labelForTick: (tick) -> tick.toString() # e.g. if you want an epoch displayed as a proper time format
 
 
   # how much to offset axis labels by so they dont render on the axis
   # This is currently not parameterized and needs to change
-  horiz_offset: 30
-  vert_offset:  20
+  horiz_offset: 40 # so hacky.  not measuring text yet, so give labels plenty of pixels to render
+  vert_offset:  10
 
   renderAxisLine: ->
     [x0, y0] = @projectDomainValue @props.scale.domain[0]
@@ -44,16 +49,28 @@ Axis = React.createClass
       frame = frame
     />
 
+  renderAxisName: ->
+    [left, top] = @axisNamePosition()
+    width = 300 # TODO measuretext
+    style = _.extend {left, top, width}, (@props.axisNameStyle ? @axisNameFontStyle())
+
+    <Text
+      style = style
+    >
+      {@props.axisName}
+    </Text>
+
   # TODO: Great example of why my LinearScale is inferior to d3's.  d3 has much better tick calculation
   # and is smarter about rounding to powers of ten and such.
   renderLabels: ->
+    [offsetLeft, offsetTop] = @getLabelOffset()
     _.map @props.scale.ticks(50), (tick, index) =>
       [left, top] = @projectDomainValue tick
-      [offsetLeft, offsetTop] = @offsetLabelForTick tick
       left += offsetLeft
       top += offsetTop
-      width = 200
+      width = 100
       style = _.extend {left, top, width}, (@props.textStyle ? @defaultTextStyle())
+
       <Text
         style = style
         key   = index
@@ -69,8 +86,8 @@ Axis = React.createClass
   (e.g. 'left', 'right',...)
   ###
   projectDomainValue: (tick) ->
-    {axis, direction, placement, origin} = @props
-    projected = @props.scale.map tick
+    {axis, direction, placement, origin, scale} = @props
+    projected = scale.map tick
 
     left =
       switch axis
@@ -93,7 +110,7 @@ Axis = React.createClass
 
     [left, top]
 
-  offsetLabelForTick: (tick) ->
+  getLabelOffset: ->
     {axis, direction, placement, origin} = @props
 
     left =
@@ -111,10 +128,45 @@ Axis = React.createClass
           0
         when 'x'
           switch placement
-            when 'above' then -@vert_offset
+            when 'above' then 2 * -@vert_offset
             when 'below' then @vert_offset
 
     [left, top]
+
+
+  axisNamePosition: ->
+    {axis, direction, placement, origin, scale} = @props
+    {lineHeight, fontSize} = @axisNameFontStyle()
+    left =
+      switch axis
+        when 'x'
+          origin.x
+        when 'y'
+          switch placement
+            when 'left' then 0# -@horiz_offset
+            when 'right' then @horiz_offset
+
+    top =
+      switch axis
+        when 'y'
+          switch direction
+            when 'up'
+              origin.y - scale.range[1] - lineHeight
+            when 'down'
+              origin.y + scale.range[1] + lineHeight
+        when 'x'
+          switch placement
+            # Just double the top position we apply to the axis labels
+            when 'above' then origin.y + (3 * -@vert_offset)
+            when 'below' then origin.y + (3 * @vert_offset)
+
+    console.log [left, top]
+    [left, top]
+
+  axisNameFontStyle: ->
+    lineHeight: 30
+    height:     30
+    fontSize:   15
 
 
   defaultTextStyle: ->

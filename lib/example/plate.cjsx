@@ -8,8 +8,6 @@ Wells        = require './Wells.cjsx'
 Renders a plate given the number of rows/columns
 ###
 Plate = React.createClass
-  ORIGIN: {x: 30, y: 30} # will need to be parameterized
-
   render: ->
     <Surface
       top    = 0
@@ -22,6 +20,8 @@ Plate = React.createClass
       {@renderWells()}
     </Surface>
 
+  displayName: 'Plate'
+  ORIGIN: {x: 50, y: 50} # will need to be parameterized
 
   # The scales are in state even though they do not currently change during component lifecycle
   getInitialState: ->

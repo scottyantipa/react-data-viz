@@ -9,13 +9,13 @@ FluorChart   = require './FluorChart.cjsx'
 dataManager  = require './dataManager.coffee'
 
 QPCRDashboard = React.createClass
-  displayname: 'QPCRDashboard'
+  displayName: 'QPCRDashboard'
   render: ->
     if not @state.fetched
       return <div>Loading...</div>
     <div className = 'example-qpcr'>
-      {@renderPlate()}
       {@renderFluorChart()}
+      {@renderPlate()}
     </div>
 
   renderPlate: ->

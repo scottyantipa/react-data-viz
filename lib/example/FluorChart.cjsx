@@ -14,8 +14,8 @@ FluorChart = React.createClass
     <Surface
       top    = 0
       left   = 0
-      width  = {@state.cycleScale.range[1] + 60}
-      height = {@state.fluorScale.range[1] + 60}
+      width  = {@state.cycleScale.range[1] + 200}
+      height = {@state.fluorScale.range[1] + 200}
     >
       {@renderCycleAxis()}
       {@renderFluorAxis()}
@@ -28,7 +28,7 @@ FluorChart = React.createClass
     cycleScale = @getCycleScale()
     origin =
       x: 50
-      y: fluorScale.range[1]
+      y: fluorScale.range[1] + 80
 
     # Calculate the qpcr lines
     bezierPointsByWellKey = {}
@@ -51,6 +51,7 @@ FluorChart = React.createClass
 
   renderCycleAxis: ->
     <Axis
+      axisName  = 'Cycle'
       origin    = @state.origin
       axis      = 'x'
       direction = 'right'
@@ -60,6 +61,7 @@ FluorChart = React.createClass
 
   renderFluorAxis: ->
     <Axis
+      axisName  = 'Fluorescense'
       origin    = @state.origin
       axis      = 'y'
       direction = 'up'

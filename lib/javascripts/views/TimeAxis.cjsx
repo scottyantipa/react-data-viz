@@ -20,11 +20,11 @@ TimeAxis = React.createClass
     step = @props.scale.getStep() # miliseconds as a power of 10 between each domain tick
     [timeFormat, timeLabel] =
       if step < (minute = 1000 * 60)
-        ['ss', 'sec']
+        ['ss', 's']
       else if step < (hour = minute * 60)
         ['mm', 'm']
       else if step < (day = hour * 24)
-        ['hh', 'hr']
+        ['hh', 'h']
       else if step < (month = day * 30)
         ['DD', 'd']
       else if step < (year = month * 12)
