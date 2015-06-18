@@ -23,7 +23,7 @@ Axis = React.createClass
     origin:       React.PropTypes.object # assumed to be [0,0]
     textStyle:    React.PropTypes.object
     showAxisLine: React.PropTypes.bool
-    labelForTick: React.PropTypes.function
+    labelForTick: React.PropTypes.func
 
   getDefaultProps: ->
     origin:       {x: 0, y: 0}

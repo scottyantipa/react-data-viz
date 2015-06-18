@@ -1,7 +1,8 @@
 TimeAxis    = require '../javascripts/views/TimeAxis.cjsx'
 Axis        = require '../javascripts/views/Axis.cjsx'
 LinearScale = require '../javascripts/util/LinearScale.coffee'
-{Surface}   = ReactCanvas
+{Surface,
+MultiLine}  = ReactCanvas
 
 TimeSeriesChart = React.createClass
   render: ->
@@ -27,27 +28,46 @@ TimeSeriesChart = React.createClass
         origin    = @getOrigin()
       />
 
+      {@renderTemperatureLine()}
+
     </Surface>
 
 
   displayName: 'TimeSeriesChart'
+
+  renderTemperatureLine: ->
+      origin = @getOrigin()
+      points = _.map @state.data, ({time, temperature}) =>
+        x: @state.timeScale.map(time) + origin.x
+        y: -@state.temperatureScale.map(temperature) + origin.y
+
+      <MultiLine
+        points = points
+      />
 
   getOrigin: ->
     x: 50
     y: @state.temperatureScale.range[1] + 50
 
   getInitialState: ->
-    start = new Date(2011, 1, 1)
-    end   = new Date(2012,1,1)
+    start = new Date(2011, 1, 1).getTime()
+    end   = new Date(2012, 1, 1).getTime()
 
-    timeScale:
+    timeScale =
       new LinearScale
-        domain: [start.getTime(), end.getTime()]
+        domain: [start, end]
         range:  [0, 500]
-    temperatureScale:
+
+    temperatureScale =
       new LinearScale
         domain: [40, 80]
         range:  [0, 400]
 
+    data =
+      for tick in timeScale.ticks()
+        temp = 40 + Math.random() * 40
+        {time: tick, temperature: temp}
+
+    {timeScale, temperatureScale, data}
 
 module.exports = TimeSeriesChart
