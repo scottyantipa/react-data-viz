@@ -4,11 +4,12 @@ var ReactDataViz;
 ReactDataViz = {
   LinearScale: require('./javascripts/util/LinearScale.coffee'),
   OrdinalScale: require('./javascripts/util/OrdinalScale.coffee'),
-  Axis: require('./javascripts/views/Axis.cjsx')
+  Axis: require('./javascripts/views/Axis.cjsx'),
+  TimeAxis: require('./javascripts/views/TimeAxis.cjsx')
 };
 
 window.ReactDataViz = ReactDataViz;
-},{"./javascripts/util/LinearScale.coffee":2,"./javascripts/util/OrdinalScale.coffee":3,"./javascripts/views/Axis.cjsx":4}],2:[function(require,module,exports){
+},{"./javascripts/util/LinearScale.coffee":2,"./javascripts/util/OrdinalScale.coffee":3,"./javascripts/views/Axis.cjsx":4,"./javascripts/views/TimeAxis.cjsx":5}],2:[function(require,module,exports){
 var LinearScale;
 
 LinearScale = (function() {
@@ -48,22 +49,20 @@ LinearScale = (function() {
     return this.dy = Math.abs(this.range[1] - this.range[0]);
   };
 
-  LinearScale.prototype.ticks = function(minGapInRange) {
-    var base, currentDomainGap, currentVal, foundExp, multiplier, stop, ticks;
-    multiplier = 0;
-    base = 10;
-    foundExp = false;
-    while (!foundExp) {
-      multiplier++;
-      currentDomainGap = base * multiplier;
-      foundExp = Math.abs(this.map(currentDomainGap)) > minGapInRange;
-    }
+  LinearScale.prototype.getStep = function() {
+    var exp, step;
+    exp = Math.floor(Math.log(this.dx) / Math.LN10);
+    return step = Math.pow(10, exp);
+  };
+
+  LinearScale.prototype.ticks = function() {
+    var currentVal, step, ticks;
+    step = this.getStep();
     currentVal = this.domain[0];
     ticks = [];
-    stop = false;
     while (currentVal < this.domain[1]) {
       ticks.push(currentVal);
-      currentVal = currentVal + base * multiplier;
+      currentVal = currentVal + step;
     }
     return ticks;
   };
@@ -180,7 +179,8 @@ Axis = React.createClass({
     scale: React.PropTypes.object.isRequired,
     origin: React.PropTypes.object,
     textStyle: React.PropTypes.object,
-    showAxisLine: React.PropTypes.bool
+    showAxisLine: React.PropTypes.bool,
+    labelForTick: React.PropTypes.func
   },
   getDefaultProps: function() {
     return {
@@ -188,7 +188,10 @@ Axis = React.createClass({
         x: 0,
         y: 0
       },
-      showAxisLine: true
+      showAxisLine: true,
+      labelForTick: function(tick) {
+        return tick.toString();
+      }
     };
   },
   horiz_offset: 30,
@@ -224,7 +227,7 @@ Axis = React.createClass({
         return React.createElement(Text, {
           "style": style,
           "key": index
-        }, tick.toString());
+        }, _this.props.labelForTick(tick));
       };
     })(this));
   },
@@ -311,4 +314,43 @@ Axis = React.createClass({
 module.exports = Axis;
 
 
-},{}]},{},[1]);
+},{}],5:[function(require,module,exports){
+var Axis, TimeAxis;
+
+Axis = require('./Axis.cjsx');
+
+TimeAxis = React.createClass({
+  render: function() {
+    var axis, direction, origin, placement, ref, scale, textStyle;
+    ref = this.props, scale = ref.scale, axis = ref.axis, placement = ref.placement, direction = ref.direction, origin = ref.origin, textStyle = ref.textStyle;
+    return React.createElement(Axis, {
+      "origin": origin,
+      "labelForTick": this.labelForTick,
+      "scale": scale,
+      "axis": axis,
+      "placement": placement,
+      "direction": direction,
+      "textStyle": textStyle
+    });
+  },
+  displayName: 'TimeAxis',
+  getInitialState: function() {
+    var day, hour, minute, month, ref, step, timeFormat, timeLabel, year;
+    step = this.props.scale.getStep();
+    ref = step < (minute = 1000 * 60) ? ['ss', 'sec'] : step < (hour = minute * 60) ? ['mm', 'm'] : step < (day = hour * 24) ? ['hh', 'hr'] : step < (month = day * 30) ? ['DD', 'd'] : step < (year = month * 12) ? ['MMMM', ''] : void 0, timeFormat = ref[0], timeLabel = ref[1];
+    return {
+      timeFormat: timeFormat,
+      timeLabel: timeLabel
+    };
+  },
+  labelForTick: function(epoch, format) {
+    var time;
+    time = moment(epoch).format(this.state.timeFormat);
+    return "" + time + this.state.timeLabel;
+  }
+});
+
+module.exports = TimeAxis;
+
+
+},{"./Axis.cjsx":4}]},{},[1]);
