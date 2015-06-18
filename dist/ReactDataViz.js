@@ -170,13 +170,14 @@ of how to render x or y axis, place labels, etc.
 
 Axis = React.createClass({
   render: function() {
-    return React.createElement(Group, null, this.renderLabels(), (this.props.showAxisLine ? this.renderAxisLine() : void 0));
+    return React.createElement(Group, null, this.renderLabels(), (this.props.axisName ? this.renderAxisName() : void 0), (this.props.showAxisLine ? this.renderAxisLine() : void 0));
   },
   propTypes: {
     axis: React.PropTypes.string.isRequired,
     direction: React.PropTypes.string.isRequired,
     placement: React.PropTypes.string.isRequired,
     scale: React.PropTypes.object.isRequired,
+    axisName: React.PropTypes.string,
     origin: React.PropTypes.object,
     textStyle: React.PropTypes.object,
     showAxisLine: React.PropTypes.bool,
@@ -189,13 +190,14 @@ Axis = React.createClass({
         y: 0
       },
       showAxisLine: true,
+      axisName: null,
       labelForTick: function(tick) {
         return tick.toString();
       }
     };
   },
-  horiz_offset: 30,
-  vert_offset: 20,
+  horiz_offset: 40,
+  vert_offset: 10,
   renderAxisLine: function() {
     var frame, ref, ref1, x0, x1, y0, y1;
     ref = this.projectDomainValue(this.props.scale.domain[0]), x0 = ref[0], y0 = ref[1];
@@ -210,15 +212,29 @@ Axis = React.createClass({
       "frame": frame
     });
   },
+  renderAxisName: function() {
+    var left, ref, ref1, style, top, width;
+    ref = this.axisNamePosition(), left = ref[0], top = ref[1];
+    width = 300;
+    style = _.extend({
+      left: left,
+      top: top,
+      width: width
+    }, (ref1 = this.props.axisNameStyle) != null ? ref1 : this.axisNameFontStyle());
+    return React.createElement(Text, {
+      "style": style
+    }, this.props.axisName);
+  },
   renderLabels: function() {
+    var offsetLeft, offsetTop, ref;
+    ref = this.getLabelOffset(), offsetLeft = ref[0], offsetTop = ref[1];
     return _.map(this.props.scale.ticks(50), (function(_this) {
       return function(tick, index) {
-        var left, offsetLeft, offsetTop, ref, ref1, ref2, style, top, width;
-        ref = _this.projectDomainValue(tick), left = ref[0], top = ref[1];
-        ref1 = _this.offsetLabelForTick(tick), offsetLeft = ref1[0], offsetTop = ref1[1];
+        var left, ref1, ref2, style, top, width;
+        ref1 = _this.projectDomainValue(tick), left = ref1[0], top = ref1[1];
         left += offsetLeft;
         top += offsetTop;
-        width = 200;
+        width = 100;
         style = _.extend({
           left: left,
           top: top,
@@ -238,9 +254,9 @@ Axis = React.createClass({
   (e.g. 'left', 'right',...)
    */
   projectDomainValue: function(tick) {
-    var axis, direction, left, origin, placement, projected, ref, top;
-    ref = this.props, axis = ref.axis, direction = ref.direction, placement = ref.placement, origin = ref.origin;
-    projected = this.props.scale.map(tick);
+    var axis, direction, left, origin, placement, projected, ref, scale, top;
+    ref = this.props, axis = ref.axis, direction = ref.direction, placement = ref.placement, origin = ref.origin, scale = ref.scale;
+    projected = scale.map(tick);
     left = (function() {
       switch (axis) {
         case 'x':
@@ -271,7 +287,7 @@ Axis = React.createClass({
     })();
     return [left, top];
   },
-  offsetLabelForTick: function(tick) {
+  getLabelOffset: function() {
     var axis, direction, left, origin, placement, ref, top;
     ref = this.props, axis = ref.axis, direction = ref.direction, placement = ref.placement, origin = ref.origin;
     left = (function() {
@@ -294,13 +310,59 @@ Axis = React.createClass({
         case 'x':
           switch (placement) {
             case 'above':
-              return -this.vert_offset;
+              return 2 * -this.vert_offset;
             case 'below':
               return this.vert_offset;
           }
       }
     }).call(this);
     return [left, top];
+  },
+  axisNamePosition: function() {
+    var axis, direction, fontSize, left, lineHeight, origin, placement, ref, ref1, scale, top;
+    ref = this.props, axis = ref.axis, direction = ref.direction, placement = ref.placement, origin = ref.origin, scale = ref.scale;
+    ref1 = this.axisNameFontStyle(), lineHeight = ref1.lineHeight, fontSize = ref1.fontSize;
+    left = (function() {
+      switch (axis) {
+        case 'x':
+          return origin.x;
+        case 'y':
+          switch (placement) {
+            case 'left':
+              return 0;
+            case 'right':
+              return this.horiz_offset;
+          }
+      }
+    }).call(this);
+    top = (function() {
+      switch (axis) {
+        case 'y':
+          switch (direction) {
+            case 'up':
+              return origin.y - scale.range[1] - lineHeight;
+            case 'down':
+              return origin.y + scale.range[1] + lineHeight;
+          }
+          break;
+        case 'x':
+          switch (placement) {
+            case 'above':
+              return origin.y + (3 * -this.vert_offset);
+            case 'below':
+              return origin.y + (3 * this.vert_offset);
+          }
+      }
+    }).call(this);
+    console.log([left, top]);
+    return [left, top];
+  },
+  axisNameFontStyle: function() {
+    return {
+      lineHeight: 30,
+      height: 30,
+      fontSize: 15
+    };
   },
   defaultTextStyle: function() {
     return {
@@ -337,7 +399,7 @@ TimeAxis = React.createClass({
   getInitialState: function() {
     var day, hour, minute, month, ref, step, timeFormat, timeLabel, year;
     step = this.props.scale.getStep();
-    ref = step < (minute = 1000 * 60) ? ['ss', 'sec'] : step < (hour = minute * 60) ? ['mm', 'm'] : step < (day = hour * 24) ? ['hh', 'hr'] : step < (month = day * 30) ? ['DD', 'd'] : step < (year = month * 12) ? ['MMMM', ''] : void 0, timeFormat = ref[0], timeLabel = ref[1];
+    ref = step < (minute = 1000 * 60) ? ['ss', 's'] : step < (hour = minute * 60) ? ['mm', 'm'] : step < (day = hour * 24) ? ['hh', 'h'] : step < (month = day * 30) ? ['DD', 'd'] : step < (year = month * 12) ? ['MMMM', ''] : void 0, timeFormat = ref[0], timeLabel = ref[1];
     return {
       timeFormat: timeFormat,
       timeLabel: timeLabel
