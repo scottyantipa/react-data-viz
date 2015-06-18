@@ -32,27 +32,23 @@ class LinearScale
   computeDY: ->
     @dy = Math.abs(@range[1] - @range[0])
 
+  # calculate a good gap between domain values as a power of 10
+  getStep: ->
+    exp = Math.floor Math.log(@dx) / Math.LN10
+    step = Math.pow 10, exp
+
   # This will return an array of domain values
   # which when mapped are all at least minGapInRange apart
   # This useful for rendering labels on an axis
   # TODO: right now it just finds a good multiple of 10, but
   # instead it should smartly find nice even values like 250, 500, 1000, ...
-  ticks: (minGapInRange) ->
-    multiplier = 0
-    base = 10
-    foundExp = false
-    while not foundExp
-      multiplier++
-      currentDomainGap = base * multiplier
-      foundExp = Math.abs(@map(currentDomainGap)) > minGapInRange
-
-    # now we have the multiple of 10 which nicely divides the domain
+  ticks: ->
+    step = @getStep()
     currentVal = @domain[0]
     ticks = [] # always return the first (it should be 0)
-    stop = false
     while currentVal < @domain[1]
       ticks.push currentVal
-      currentVal = currentVal + base*multiplier
+      currentVal = currentVal + step
 
     ticks
 

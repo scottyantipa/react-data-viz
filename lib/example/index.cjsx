@@ -1,46 +1,44 @@
-{Surface,
-Group,
-Text,
-Layer,
-Point,
-Text}        = require 'react-canvas'
-Plate        = require './plate.cjsx'
-FluorChart   = require './FluorChart.cjsx'
-dataManager  = require './dataManager.coffee'
+TimeSeriesChart = require './TimeSeriesChart.cjsx'
+QPCRDashboard   = require './QPCRDashboard.cjsx'
 
 Index = React.createClass
 
   render: ->
-    if not @state.fetched
-      return <div>Loading...</div>
-    <div className = 'example-qpcr'>
-      {@renderPlate()}
-      {@renderFluorChart()}
+    <div>
+      {@renderChartOptions()}
+      {@renderBody()}
     </div>
 
-  renderPlate: ->
-    <div className = 'pcr-plate'>
-      <Plate
-        numRows    = dataManager.NUM_ROWS
-        numColumns = dataManager.NUM_COLUMNS
-      />
-    </div>
-
-  renderFluorChart: ->
-    {results} = dataManager.state
-    <div className = 'pcr-line-chart'>
-      <FluorChart
-        cycleResults  = results.groups[0]
-        fluorResults  = results.projections[0]
-        resultsByWell = results.resultsByWell
-      />
-    </div>
+  displayName: 'Index'
 
   getInitialState: ->
-    fetched: false
+    chartToShow: 'timeline' # qpcr or timeline
 
-  componentDidMount: ->
-    dataManager.fetchAll => @setState fetched: true
+  renderBody: ->
+    switch @state.chartToShow
+      when 'qpcr'
+        <QPCRDashboard/>
+      when 'timeline'
+        <TimeSeriesChart/>
+
+
+  renderChartOptions: ->
+    <div>
+
+      <button
+        onClick = { => @setState chartToShow: 'qpcr'}
+      >
+        qPCR Dashboard
+      </button>
+
+      <button
+        onClick = {=> @setState chartToShow: 'timeline'}
+      >
+        Timeline
+      </button>
+
+    </div>
+
 
 $ ->
   React.render <Index/>, $('body')[0]

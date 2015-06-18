@@ -20,6 +20,7 @@
   "private": false,
   "dependencies": {
     "jquery": "1.11.3",
-    "underscore": "1.7.0"
+    "underscore": "1.7.0",
+    "moment": "~2.6.0"
   }
 }

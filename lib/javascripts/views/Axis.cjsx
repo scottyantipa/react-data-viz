@@ -23,10 +23,12 @@ Axis = React.createClass
     origin:       React.PropTypes.object # assumed to be [0,0]
     textStyle:    React.PropTypes.object
     showAxisLine: React.PropTypes.bool
+    labelForTick: React.PropTypes.function
 
   getDefaultProps: ->
-    origin:        {x: 0, y: 0}
+    origin:       {x: 0, y: 0}
     showAxisLine: true
+    labelForTick: (tick) -> tick.toString() # e.g. if you want an epoch displayed as a proper time format
 
 
   # how much to offset axis labels by so they dont render on the axis
@@ -52,12 +54,13 @@ Axis = React.createClass
       top += offsetTop
       width = 200
       style = _.extend {left, top, width}, (@props.textStyle ? @defaultTextStyle())
-
       <Text
         style = style
         key   = index
       >
-        {tick.toString()}
+        {
+          @props.labelForTick tick
+        }
       </Text>
 
   ###

@@ -46,6 +46,7 @@ gulp.task 'example_js', ->
 jsDepPaths = [
   "./bower_components/jquery/dist/jquery.js"
   "./bower_components/underscore/underscore.js"
+  "./bower_components/moment/moment.js"
   "node_modules/react-canvas/dist/ReactCanvas.js"
 ]
 gulp.task 'vendor_js', ->
