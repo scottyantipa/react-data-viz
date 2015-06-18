@@ -12,7 +12,7 @@ Index = React.createClass
   displayName: 'Index'
 
   getInitialState: ->
-    chartToShow: 'timeline' # qpcr or timeline
+    chartToShow: 'qpcr' # qpcr or timeline
 
   renderBody: ->
     switch @state.chartToShow

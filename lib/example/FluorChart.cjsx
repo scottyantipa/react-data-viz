@@ -1,5 +1,5 @@
 {Surface,
-Line}        = ReactCanvas
+MultiLine}   = ReactCanvas
 Axis         = require '../javascripts/views/Axis.cjsx'
 OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'
 LinearScale  = require '../javascripts/util/LinearScale.coffee'
@@ -71,19 +71,10 @@ FluorChart = React.createClass
   renderFluorLines: ->
     numWellsRendered = 0
     for wellKey, points of @state.bezierPointsByWellKey
-      break if numWellsRendered is 20
-      numWellsRendered++
-      for point, index in points
-        nextPoint = points[index + 1]
-        break if not nextPoint
-        frame =
-          x0: point[0]
-          y0: point[1]
-          x1: nextPoint[0]
-          y1: nextPoint[1]
-        <Line
-          frame = frame
-        />
+      pointsForLine = _.map points, ([x,y]) -> {x, y}
+      <MultiLine
+        points = pointsForLine
+      />
 
   getCycleScale: ->
     new OrdinalScale
