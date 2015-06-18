@@ -7,7 +7,7 @@ TimeAxis = React.createClass
     <Axis
       axisName     = axisName
       origin       = origin
-      labelForTick = @labelForTickf
+      labelForTick = @labelForTick
       scale        = scale
       axis         = axis
       placement    = placement
