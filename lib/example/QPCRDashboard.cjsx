@@ -28,13 +28,11 @@ QPCRDashboard = React.createClass
 
   renderFluorChart: ->
     {results} = dataManager.state
-    <div className = 'pcr-line-chart'>
-      <FluorChart
-        cycleResults  = results.groups[0]
-        fluorResults  = results.projections[0]
-        resultsByWell = results.resultsByWell
-      />
-    </div>
+    <FluorChart
+      cycleResults  = results.groups[0]
+      fluorResults  = results.projections[0]
+      resultsByWell = results.resultsByWell
+    />
 
   getInitialState: ->
     fetched: false

@@ -11,16 +11,23 @@ FluorChart = React.createClass
   displayName: 'Fluorescense'
 
   render: ->
-    <Surface
-      top    = 0
-      left   = 0
-      width  = {@state.cycleScale.range[1] + 200}
-      height = {@state.fluorScale.range[1] + 200}
-    >
-      {@renderCycleAxis()}
-      {@renderFluorAxis()}
-      {@renderFluorLines()}
-    </Surface>
+    <div className = '.fluorescense-chart'>
+      <button
+        onClick = { => @setState fluorScale: @getFluorScale(400)}
+      >
+        400px
+      </button>
+      <Surface
+        top    = 0
+        left   = 0
+        width  = {@state.cycleScale.range[1] + 200}
+        height = {@state.fluorScale.range[1] + 200}
+      >
+        {@renderCycleAxis()}
+        {@renderFluorAxis()}
+        {@renderFluorLines()}
+      </Surface>
+    </div>
 
   # 30 is the padding I'm using around all of the axis
   getInitialState: ->
@@ -82,10 +89,10 @@ FluorChart = React.createClass
     new OrdinalScale
       domain: @props.cycleResults.domain
       range: [0, window.innerWidth - 100]
-  getFluorScale: ->
+  getFluorScale: (range1 = 300) ->
     new LinearScale
       domain: @props.fluorResults.domain
-      range: [0, 300]
+      range: [0, range1]
 
 
 module.exports = FluorChart
