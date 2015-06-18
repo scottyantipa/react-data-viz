@@ -1602,30 +1602,30 @@ var _instancePool = {
   length: 0,
   // Keep all the nodes in memory.
   elements: {
-    
+
   },
-  
+
   // Push with 0 frequency
   push: function (hash, data) {
     this.length++;
     this.elements[hash] = {
-      hash: hash, // Helps identifying 
+      hash: hash, // Helps identifying
       freq: 0,
       data: data
     };
   },
-  
+
   get: function (path) {
     var element = this.elements[path];
-    
+
     if( element ){
       element.freq++;
       return element.data;
     }
-    
+
     return null;
   },
-  
+
   // used to explicitely remove the path
   removeElement: function (path) {
     // Now almighty GC can claim this soul
@@ -1634,25 +1634,25 @@ var _instancePool = {
     this.length--;
     return element;
   },
-  
+
   _reduceLeastUsed: function (least, currentHash) {
     var current = _instancePool.elements[currentHash];
-    
+
     if( least.freq > current.freq ){
       return current;
     }
-    
+
     return least;
   },
-  
+
   popLeastUsed: function () {
     var reducer = _instancePool._reduceLeastUsed;
     var minUsed = Object.keys(this.elements).reduce(reducer, { freq: Infinity });
-    
+
     if( minUsed.hash ){
-      return this.removeElement(minUsed.hash);  
+      return this.removeElement(minUsed.hash);
     }
-    
+
     return null;
   }
 };
@@ -3500,10 +3500,10 @@ module.exports = function measureText (text, width, fontFace, fontSize, lineHeig
     measuredSize.width = width;
     currentLine = '';
     breaker = new LineBreaker(text);
-    
+
     while (bk = breaker.nextBreak()) {
       var word = text.slice(lastBreak ? lastBreak.position : 0, bk.position);
-      
+
       tryLine = currentLine + word;
       textMetrics = ctx.measureText(tryLine);
       if (textMetrics.width > width || (lastBreak && lastBreak.required)) {
@@ -3515,10 +3515,10 @@ module.exports = function measureText (text, width, fontFace, fontSize, lineHeig
         currentLine = tryLine;
         lastMeasuredWidth = textMetrics.width;
       }
-      
+
       lastBreak = bk;
     }
-    
+
     currentLine = currentLine.trim();
     if (currentLine.length > 0) {
       textMetrics = ctx.measureText(currentLine);
@@ -4159,10 +4159,10 @@ function Data(source, dest) {
   this.sourceIndex = 0;
   this.tag = 0;
   this.bitcount = 0;
-  
+
   this.dest = dest;
   this.destLen = 0;
-  
+
   this.ltree = new Tree();  /* dynamic length/symbol tree */
   this.dtree = new Tree();  /* dynamic distance tree */
 }
@@ -4304,7 +4304,7 @@ function tinf_decode_symbol(d, t) {
     d.tag |= d.source[d.sourceIndex++] << d.bitcount;
     d.bitcount += 8;
   }
-  
+
   var sum = 0, cur = 0, len = 0;
   var tag = d.tag;
 
@@ -4317,7 +4317,7 @@ function tinf_decode_symbol(d, t) {
     sum += t.table[len];
     cur -= t.table[len];
   } while (cur >= 0);
-  
+
   d.tag = tag;
   d.bitcount -= len;
 
@@ -4428,7 +4428,7 @@ function tinf_inflate_block_data(d, lt, dt) {
 function tinf_inflate_uncompressed_block(d) {
   var length, invlength;
   var i;
-  
+
   /* unread from bitbuffer */
   while (d.bitcount > 8) {
     d.sourceIndex--;
@@ -4501,7 +4501,7 @@ function tinf_uncompress(source, dest) {
     else
       return d.dest.subarray(0, d.destLen);
   }
-  
+
   return d.dest;
 }
 
@@ -4616,7 +4616,7 @@ module.exports = tinf_uncompress;
 
   UnicodeTrie = require('unicode-trie');
 
-  
+
 
   base64 = require('base64-js');
 
@@ -26877,7 +26877,7 @@ var Scroller;
 
 			/** Increase or decrease the amount of friction applied to deceleration **/
 			decelerationRate: 0.95,
-			
+
 			/** This configures the amount of change applied to deceleration when reaching boundaries  **/
             penetrationDeceleration : 0.03,
 
@@ -28126,8 +28126,8 @@ var Scroller;
 				var scrollOutsideY = 0;
 
 				// This configures the amount of change applied to deceleration/acceleration when reaching boundaries
-				var penetrationDeceleration = self.options.penetrationDeceleration; 
-				var penetrationAcceleration = self.options.penetrationAcceleration; 
+				var penetrationDeceleration = self.options.penetrationDeceleration;
+				var penetrationAcceleration = self.options.penetrationAcceleration;
 
 				// Check limits
 				if (scrollLeft < self.__minDecelerationScrollLeft) {

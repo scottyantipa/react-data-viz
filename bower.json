@@ -1,7 +1,7 @@
 {
   "name": "ReactDataViz",
   "description": "Use react to render data visualization to <canvas>.",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "keywords": ["React", "data", "dataviz"],
   "repository": {
     "type": "git",
