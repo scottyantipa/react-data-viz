@@ -12,16 +12,12 @@ FluorChart = React.createClass
 
   render: ->
     <div className = '.fluorescense-chart'>
-      <button
-        onClick = { => @setState fluorScale: @getFluorScale(400)}
-      >
-        400px
-      </button>
+      {@renderStateButtons()}
       <Surface
         top    = 0
         left   = 0
-        width  = {@state.cycleScale.range[1] + 200}
-        height = {@state.fluorScale.range[1] + 200}
+        width  = 900
+        height = 500
       >
         {@renderCycleAxis()}
         {@renderFluorAxis()}
@@ -55,6 +51,26 @@ FluorChart = React.createClass
       bezierPointsByWellKey
       origin
     }
+
+  renderStateButtons: ->
+    <div>
+      <button
+        onClick = { => @setState fluorScale: @getFluorScale(800)}
+      >
+        800px
+      </button>
+
+      <button
+        onClick = { => @setState fluorScale: @getFluorScale(400)}
+      >
+        400px
+      </button>
+      <button
+        onClick = { => @setState fluorScale: @getFluorScale(200)}
+      >
+        200px
+      </button>
+    </div>
 
   renderCycleAxis: ->
     <Axis

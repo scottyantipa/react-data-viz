@@ -1,5 +1,6 @@
-TimeSeriesChart = require './TimeSeriesChart.cjsx'
-QPCRDashboard   = require './QPCRDashboard.cjsx'
+TimeSeriesChart   = require './TimeSeriesChart.cjsx'
+QPCRDashboard     = require './QPCRDashboard.cjsx'
+StatefulSmokeTest = require './StatefulSmokeTest.cjsx'
 
 Index = React.createClass
 
@@ -12,29 +13,37 @@ Index = React.createClass
   displayName: 'Index'
 
   getInitialState: ->
-    chartToShow: 'qpcr' # qpcr or timeline
+    chartToShow: 'QPCRDashboard' # QPCRDashboard, TimeSeriesChart, or StatefulSmokeTest
 
   renderBody: ->
     switch @state.chartToShow
-      when 'qpcr'
+      when 'QPCRDashboard'
         <QPCRDashboard/>
-      when 'timeline'
+      when 'TimeSeriesChart'
         <TimeSeriesChart/>
+      when 'StatefulSmokeTest'
+        <StatefulSmokeTest/>
 
 
   renderChartOptions: ->
     <div>
 
       <button
-        onClick = { => @setState chartToShow: 'qpcr'}
+        onClick = { => @setState chartToShow: 'QPCRDashboard'}
       >
-        qPCR Dashboard
+        QPCRDashboard
       </button>
 
       <button
-        onClick = {=> @setState chartToShow: 'timeline'}
+        onClick = {=> @setState chartToShow: 'TimeSeriesChart'}
       >
-        Timeline
+        TimeSeriesChart
+      </button>
+
+      <button
+        onClick = {=> @setState chartToShow: 'StatefulSmokeTest'}
+      >
+        StatefulSmokeTest
       </button>
 
     </div>

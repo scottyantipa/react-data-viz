@@ -387,7 +387,7 @@ TimeAxis = React.createClass({
     return React.createElement(Axis, {
       "axisName": axisName,
       "origin": origin,
-      "labelForTick": this.labelForTickf,
+      "labelForTick": this.labelForTick,
       "scale": scale,
       "axis": axis,
       "placement": placement,
