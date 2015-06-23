@@ -13,7 +13,7 @@ Index = React.createClass
   displayName: 'Index'
 
   getInitialState: ->
-    chartToShow: 'QPCRDashboard' # QPCRDashboard, TimeSeriesChart, or StatefulSmokeTest
+    chartToShow: 'TimeSeriesChart' # QPCRDashboard, TimeSeriesChart, or StatefulSmokeTest
 
   renderBody: ->
     switch @state.chartToShow

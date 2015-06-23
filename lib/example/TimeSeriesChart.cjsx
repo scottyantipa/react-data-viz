@@ -69,6 +69,10 @@ TimeSeriesChart = React.createClass
         temp = 40 + Math.random() * 40
         {time: tick, temperature: temp}
 
+    # have the final value be at 40 just because it's good to
+    # visually see the y min value being rendered in the right place
+    data.push {time: end, temperature: 40}
+
     {timeScale, temperatureScale, data}
 
 module.exports = TimeSeriesChart

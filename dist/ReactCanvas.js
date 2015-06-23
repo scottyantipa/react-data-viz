@@ -262,14 +262,15 @@ function drawPoint (ctx, x, y, radius, options) {
 function drawLine (ctx, x0, y0, x1, y1, options) {
   var options = options || {};
 
-  ctx.save()
-
+  ctx.save();
+  ctx.beginPath();
   ctx.moveTo(Math.round(x0) + 0.5, Math.round(y0) + 0.5);
   ctx.lineTo(Math.round(x1) + 0.5, Math.round(y1) + 0.5);
   if (options.strokeStyle) {
     ctx.strokeStyle = options.strokeStyle;
     ctx.stroke();
   }
+  ctx.closePath();
 
   ctx.restore()
 }
@@ -282,6 +283,8 @@ function drawMultiLine (ctx, points, options) {
 
   // move ctx to first point
   point1 = points[0]
+
+  ctx.beginPath()
   ctx.moveTo(Math.round(point1.x) + 0.5, Math.round(point1.y) + 0.5);
 
   // connect each successive point with a line
@@ -295,7 +298,7 @@ function drawMultiLine (ctx, points, options) {
     ctx.strokeStyle = options.strokeStyle;
     ctx.stroke();
   }
-
+  ctx.closePath()
   ctx.restore()
 }
 

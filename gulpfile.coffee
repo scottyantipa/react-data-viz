@@ -84,8 +84,12 @@ gulp.task 'clean_examples', ->
     .pipe plumber()
     .pipe clean()
 
+gulp.task 'clean_dist', ->
+  gulp.src "./dist/*.js", read: false
+    .pipe plumber()
+    .pipe clean()
 
 
 gulp.task 'default', ['example_js', 'vendor_js', 'app_styles']
 gulp.task 'serve', ['webserver', 'watch']
-gulp.task 'clean', ['clean_examples']
+gulp.task 'clean', ['clean_examples', 'clean_dist']
