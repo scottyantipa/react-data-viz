@@ -3,16 +3,17 @@ Axis = require './Axis.cjsx'
 TimeAxis = React.createClass
 
   render: ->
-    {axisName, scale, axis, placement, direction, origin, textStyle} = @props
+    {axisName, scale, axis, placement, direction, origin, textStyle, axisLineStyle} = @props
     <Axis
-      axisName     = axisName
-      origin       = origin
-      labelForTick = @labelForTick
-      scale        = scale
-      axis         = axis
-      placement    = placement
-      direction    = direction
-      textStyle    = textStyle
+      axisName      = axisName
+      origin        = origin
+      labelForTick  = @labelForTick
+      scale         = scale
+      axis          = axis
+      placement     = placement
+      direction     = direction
+      textStyle     = textStyle
+      axisLineStyle = axisLineStyle
     />
 
   displayName: 'TimeAxis'

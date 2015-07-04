@@ -169,19 +169,21 @@ of how to render x or y axis, place labels, etc.
  */
 
 Axis = React.createClass({
+  vert_offset: 10,
   render: function() {
-    return React.createElement(Group, null, this.renderLabels(), (this.props.axisName ? this.renderAxisName() : void 0), (this.props.showAxisLine ? this.renderAxisLine() : void 0));
+    return React.createElement(Group, null, this.renderLabels(), (this.props.showAxisLine ? this.renderAxisLine() : void 0));
   },
   propTypes: {
     axis: React.PropTypes.string.isRequired,
     direction: React.PropTypes.string.isRequired,
     placement: React.PropTypes.string.isRequired,
     scale: React.PropTypes.object.isRequired,
-    axisName: React.PropTypes.string,
     origin: React.PropTypes.object,
     textStyle: React.PropTypes.object,
     showAxisLine: React.PropTypes.bool,
-    labelForTick: React.PropTypes.func
+    axisLineStyle: React.PropTypes.object,
+    labelForTick: React.PropTypes.func,
+    thickness: React.PropTypes.number
   },
   getDefaultProps: function() {
     return {
@@ -190,14 +192,25 @@ Axis = React.createClass({
         y: 0
       },
       showAxisLine: true,
-      axisName: null,
+      thickness: 100,
+      textStyle: {
+        lineHeight: 20,
+        height: 20,
+        fontSize: 12
+      },
+      axisLineStyle: {},
       labelForTick: function(tick) {
         return tick.toString();
       }
     };
   },
-  horiz_offset: 40,
-  vert_offset: 10,
+  getInitialState: function() {
+    var textAlign;
+    textAlign = this.props.axis === 'y' ? this.props.placement === 'left' ? 'right' : 'left' : 'center';
+    return {
+      textAlign: textAlign
+    };
+  },
   renderAxisLine: function() {
     var frame, ref, ref1, x0, x1, y0, y1;
     ref = this.projectDomainValue(this.props.scale.domain[0]), x0 = ref[0], y0 = ref[1];
@@ -209,37 +222,29 @@ Axis = React.createClass({
       y1: y1
     };
     return React.createElement(Line, {
-      "frame": frame
+      "frame": frame,
+      "style": this.props.axisLineStyle
     });
   },
-  renderAxisName: function() {
-    var left, ref, ref1, style, top, width;
-    ref = this.axisNamePosition(), left = ref[0], top = ref[1];
-    width = 300;
-    style = _.extend({
-      left: left,
-      top: top,
-      width: width
-    }, (ref1 = this.props.axisNameStyle) != null ? ref1 : this.axisNameFontStyle());
-    return React.createElement(Text, {
-      "style": style
-    }, this.props.axisName);
-  },
   renderLabels: function() {
-    var offsetLeft, offsetTop, ref;
+    var baseTextStyle, offsetLeft, offsetTop, ref;
     ref = this.getLabelOffset(), offsetLeft = ref[0], offsetTop = ref[1];
+    baseTextStyle = _.clone(this.props.textStyle);
+    if (baseTextStyle.textAlign == null) {
+      baseTextStyle.textAlign = this.state.textAlign;
+    }
     return _.map(this.props.scale.ticks(50), (function(_this) {
       return function(tick, index) {
-        var left, ref1, ref2, style, top, width;
+        var left, ref1, style, top, width;
         ref1 = _this.projectDomainValue(tick), left = ref1[0], top = ref1[1];
+        width = _this.props.thickness;
         left += offsetLeft;
         top += offsetTop;
-        width = 100;
         style = _.extend({
           left: left,
           top: top,
           width: width
-        }, (ref2 = _this.props.textStyle) != null ? ref2 : _this.defaultTextStyle());
+        }, baseTextStyle);
         return React.createElement(Text, {
           "style": style,
           "key": index
@@ -297,9 +302,9 @@ Axis = React.createClass({
         case 'y':
           switch (placement) {
             case 'left':
-              return -this.horiz_offset;
+              return -this.props.thickness - 15;
             case 'right':
-              return this.horiz_offset;
+              return this.props.thickness + 15;
           }
       }
     }).call(this);
@@ -318,56 +323,11 @@ Axis = React.createClass({
     }).call(this);
     return [left, top];
   },
-  axisNamePosition: function() {
-    var axis, direction, fontSize, left, lineHeight, origin, placement, ref, ref1, scale, top;
-    ref = this.props, axis = ref.axis, direction = ref.direction, placement = ref.placement, origin = ref.origin, scale = ref.scale;
-    ref1 = this.axisNameFontStyle(), lineHeight = ref1.lineHeight, fontSize = ref1.fontSize;
-    left = (function() {
-      switch (axis) {
-        case 'x':
-          return origin.x;
-        case 'y':
-          switch (placement) {
-            case 'left':
-              return 0;
-            case 'right':
-              return this.horiz_offset;
-          }
-      }
-    }).call(this);
-    top = (function() {
-      switch (axis) {
-        case 'y':
-          switch (direction) {
-            case 'up':
-              return origin.y - scale.range[1] - lineHeight;
-            case 'down':
-              return origin.y + scale.range[1] + lineHeight;
-          }
-          break;
-        case 'x':
-          switch (placement) {
-            case 'above':
-              return origin.y + (3 * -this.vert_offset);
-            case 'below':
-              return origin.y + (3 * this.vert_offset);
-          }
-      }
-    }).call(this);
-    return [left, top];
-  },
   axisNameFontStyle: function() {
     return {
       lineHeight: 30,
       height: 30,
-      fontSize: 15
-    };
-  },
-  defaultTextStyle: function() {
-    return {
-      lineHeight: 20,
-      height: 20,
-      fontSize: 12
+      fontSize: 13
     };
   }
 });
@@ -382,8 +342,8 @@ Axis = require('./Axis.cjsx');
 
 TimeAxis = React.createClass({
   render: function() {
-    var axis, axisName, direction, origin, placement, ref, scale, textStyle;
-    ref = this.props, axisName = ref.axisName, scale = ref.scale, axis = ref.axis, placement = ref.placement, direction = ref.direction, origin = ref.origin, textStyle = ref.textStyle;
+    var axis, axisLineStyle, axisName, direction, origin, placement, ref, scale, textStyle;
+    ref = this.props, axisName = ref.axisName, scale = ref.scale, axis = ref.axis, placement = ref.placement, direction = ref.direction, origin = ref.origin, textStyle = ref.textStyle, axisLineStyle = ref.axisLineStyle;
     return React.createElement(Axis, {
       "axisName": axisName,
       "origin": origin,
@@ -392,7 +352,8 @@ TimeAxis = React.createClass({
       "axis": axis,
       "placement": placement,
       "direction": direction,
-      "textStyle": textStyle
+      "textStyle": textStyle,
+      "axisLineStyle": axisLineStyle
     });
   },
   displayName: 'TimeAxis',

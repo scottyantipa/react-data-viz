@@ -7,39 +7,51 @@ Renders the axis for a chart.  See propTypes for description
 of how to render x or y axis, place labels, etc.
 ###
 Axis = React.createClass
+
+  vert_offset:  10 # helper for rendering x axis labels
+
   render: ->
     <Group>
       {@renderLabels()}
-      {
-        if @props.axisName then @renderAxisName()
-      }
       {
         if @props.showAxisLine then @renderAxisLine()
       }
     </Group>
 
   propTypes:
-    axis:         React.PropTypes.string.isRequired # 'x' or 'y'
-    direction:    React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
-    placement:    React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
-    scale:        React.PropTypes.object.isRequired
-    axisName:     React.PropTypes.string # Rendered next to axis as a description
-    origin:       React.PropTypes.object # assumed to be [0,0]
-    textStyle:    React.PropTypes.object
-    showAxisLine: React.PropTypes.bool
-    labelForTick: React.PropTypes.func
+    axis:          React.PropTypes.string.isRequired # 'x' or 'y'
+    direction:     React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
+    placement:     React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
+    scale:         React.PropTypes.object.isRequired
+    origin:        React.PropTypes.object # assumed to be [0,0]
+    textStyle:     React.PropTypes.object
+    showAxisLine:  React.PropTypes.bool
+    axisLineStyle: React.PropTypes.object
+    labelForTick:  React.PropTypes.func
+    thickness:     React.PropTypes.number # y axis width, x axis height
 
   getDefaultProps: ->
     origin:       {x: 0, y: 0}
     showAxisLine: true
-    axisName:     null
+    thickness:    100
+    textStyle:
+      lineHeight: 20
+      height:     20
+      fontSize:   12
+    axisLineStyle: {} # use current ctx styles
     labelForTick: (tick) -> tick.toString() # e.g. if you want an epoch displayed as a proper time format
 
+  getInitialState: ->
+    textAlign =
+      if @props.axis is 'y'
+        if @props.placement is 'left'
+          'right'
+        else
+          'left'
+      else
+        'center'
 
-  # how much to offset axis labels by so they dont render on the axis
-  # This is currently not parameterized and needs to change
-  horiz_offset: 40 # so hacky.  not measuring text yet, so give labels plenty of pixels to render
-  vert_offset:  10
+    {textAlign}
 
   renderAxisLine: ->
     [x0, y0] = @projectDomainValue @props.scale.domain[0]
@@ -47,29 +59,20 @@ Axis = React.createClass
     frame = {x0,y0,x1,y1}
     <Line
       frame = frame
+      style = @props.axisLineStyle
     />
 
-  renderAxisName: ->
-    [left, top] = @axisNamePosition()
-    width = 300 # TODO measuretext
-    style = _.extend {left, top, width}, (@props.axisNameStyle ? @axisNameFontStyle())
 
-    <Text
-      style = style
-    >
-      {@props.axisName}
-    </Text>
-
-  # TODO: Great example of why my LinearScale is inferior to d3's.  d3 has much better tick calculation
-  # and is smarter about rounding to powers of ten and such.
   renderLabels: ->
     [offsetLeft, offsetTop] = @getLabelOffset()
+    baseTextStyle = _.clone @props.textStyle
+    baseTextStyle.textAlign ?= @state.textAlign
     _.map @props.scale.ticks(50), (tick, index) =>
       [left, top] = @projectDomainValue tick
-      left += offsetLeft
-      top += offsetTop
-      width = 100
-      style = _.extend {left, top, width}, (@props.textStyle ? @defaultTextStyle())
+      width = @props.thickness
+      left  += offsetLeft
+      top   += offsetTop
+      style = _.extend {left, top, width}, baseTextStyle
 
       <Text
         style = style
@@ -119,8 +122,8 @@ Axis = React.createClass
           0
         when 'y'
           switch placement
-            when 'left' then -@horiz_offset
-            when 'right' then @horiz_offset
+            when 'left' then -@props.thickness - 15
+            when 'right' then @props.thickness + 15
 
     top =
       switch axis
@@ -134,43 +137,9 @@ Axis = React.createClass
     [left, top]
 
 
-  axisNamePosition: ->
-    {axis, direction, placement, origin, scale} = @props
-    {lineHeight, fontSize} = @axisNameFontStyle()
-    left =
-      switch axis
-        when 'x'
-          origin.x
-        when 'y'
-          switch placement
-            when 'left' then 0# -@horiz_offset
-            when 'right' then @horiz_offset
-
-    top =
-      switch axis
-        when 'y'
-          switch direction
-            when 'up'
-              origin.y - scale.range[1] - lineHeight
-            when 'down'
-              origin.y + scale.range[1] + lineHeight
-        when 'x'
-          switch placement
-            # Just double the top position we apply to the axis labels
-            when 'above' then origin.y + (3 * -@vert_offset)
-            when 'below' then origin.y + (3 * @vert_offset)
-
-    [left, top]
-
   axisNameFontStyle: ->
     lineHeight: 30
     height:     30
-    fontSize:   15
-
-
-  defaultTextStyle: ->
-    lineHeight: 20
-    height:     20
-    fontSize:   12
+    fontSize:   13
 
 module.exports = Axis

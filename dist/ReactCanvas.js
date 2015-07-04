@@ -75,6 +75,30 @@ var clamp = require('./clamp');
 var measureText = require('./measureText');
 
 /**
+ * Sets standard shape options on a ctx.
+ * already be loaded.
+ *
+ * @param {CanvasContext} ctx
+ * @param {Object} ctxOptions {ctx_attr, ...}
+ */
+function setContextShapeOptions (ctx, ctxOptions) {
+  var options = ctxOptions || {};
+  var lineWidth   = options.lineWidth,
+      opacity     = options.opacity,
+      strokeStyle = options.strokeStyle;
+
+  if (lineWidth != null) {
+    ctx.lineWidth = lineWidth;
+  }
+  if (opacity != null) {
+    ctx.globalAlpha = opacity;
+  }
+  if (strokeStyle != null) {
+    ctx.strokeStyle = strokeStyle;
+  }
+}
+
+/**
  * Draw an image into a <canvas>. This operation requires that the image
  * already be loaded.
  *
@@ -259,17 +283,16 @@ function drawPoint (ctx, x, y, radius, options) {
   ctx.restore();
 }
 
-function drawLine (ctx, x0, y0, x1, y1, options) {
-  var options = options || {};
+function drawLine (ctx, x0, y0, x1, y1, shapeOptions) {
+  var options = shapeOptions || {};
 
   ctx.save();
+  setContextShapeOptions(ctx, options.style);
+
   ctx.beginPath();
   ctx.moveTo(Math.round(x0) + 0.5, Math.round(y0) + 0.5);
   ctx.lineTo(Math.round(x1) + 0.5, Math.round(y1) + 0.5);
-  if (options.strokeStyle) {
-    ctx.strokeStyle = options.strokeStyle;
-    ctx.stroke();
-  }
+  ctx.stroke();
   ctx.closePath();
 
   ctx.restore()
@@ -910,7 +933,7 @@ function drawPointRenderLayer (ctx, layer) {
 */
 function drawLineRenderLayer (ctx, layer) {
   CanvasUtils.drawLine(ctx, layer.frame.x0, layer.frame.y0, layer.frame.x1, layer.frame.y1, {
-    strokeStyle: layer.strokeStyle || "#000" //black
+    style: layer.style || {}
   });
 }
 
@@ -2478,7 +2501,7 @@ var Line = createComponent('Line', LayerMixin, {
 
     layer.type = 'line';
     layer.frame = props.frame;
-    layer.color = style.color;
+    layer.style = style;
   },
 
   mountComponent: function (rootID, transaction, context) {

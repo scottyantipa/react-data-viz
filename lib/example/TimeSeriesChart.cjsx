@@ -5,7 +5,10 @@ LinearScale = require '../javascripts/util/LinearScale.coffee'
 MultiLine}  = ReactCanvas
 
 TimeSeriesChart = React.createClass
+  displayName: 'TimeSeriesChart'
+  axisThickness: 100
   render: ->
+    origin = @getOrigin()
     <Surface
       top    = 0
       left   = 0
@@ -13,29 +16,34 @@ TimeSeriesChart = React.createClass
       height = {@state.temperatureScale.range[1] + 200}
     >
       <TimeAxis
-        axisName     = 'Time'
-        scale        = @state.timeScale
-        axis         = 'x'
-        placement    = 'below'
-        direction    = 'right'
-        origin       = @getOrigin()
+        axisName      = 'Time'
+        scale         = @state.timeScale
+        axis          = 'x'
+        placement     = 'below'
+        direction     = 'right'
+        origin        = origin
+        thickness     = @axisThickness
+        axisLineStyle = @getAxisLineStyle()
       />
 
       <Axis
-        axisName  = 'Temp'
-        scale     = @state.temperatureScale
-        axis      = 'y'
-        placement = 'left'
-        direction = 'up'
-        origin    = @getOrigin()
+        axisName      = 'Temp'
+        scale         = @state.temperatureScale
+        axis          = 'y'
+        placement     = 'left'
+        direction     = 'up'
+        origin        = @getOrigin()
+        thickness     = @axisThickness
+        axisLineStyle = @getAxisLineStyle()
+        labelForTick  = {(tick) -> "#{tick}˚"}
       />
 
       {@renderTemperatureLine()}
 
     </Surface>
 
-
-  displayName: 'TimeSeriesChart'
+  getAxisLineStyle: ->
+    opacity: .2
 
   renderTemperatureLine: ->
       origin = @getOrigin()
@@ -48,8 +56,8 @@ TimeSeriesChart = React.createClass
       />
 
   getOrigin: ->
-    x: 50
-    y: @state.temperatureScale.range[1] + 50
+    x: @axisThickness
+    y: @state.temperatureScale.range[1] + @axisThickness
 
   getInitialState: ->
     start = new Date(2011, 1, 1).getTime()
@@ -62,12 +70,12 @@ TimeSeriesChart = React.createClass
 
     temperatureScale =
       new LinearScale
-        domain: [40, 80]
-        range:  [0, 400]
+        domain: [0, 90]
+        range:  [0, 500]
 
     data =
       for tick in timeScale.ticks()
-        temp = 40 + Math.random() * 40
+        temp = Math.random() * 90
         {time: tick, temperature: temp}
 
     # have the final value be at 40 just because it's good to
