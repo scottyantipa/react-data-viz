@@ -9,7 +9,9 @@ Renders a qCPR line chart showing Fluorescense vs. Cycle
 ###
 FluorChart = React.createClass
   displayName: 'Fluorescense'
-
+  axisStyle:
+    opacity: .5
+    strokeStyle: 'black'
   render: ->
     <div className = '.fluorescense-chart'>
       {@renderStateButtons()}
@@ -74,31 +76,47 @@ FluorChart = React.createClass
 
   renderCycleAxis: ->
     <Axis
-      axisName  = 'Cycle'
-      origin    = @state.origin
-      axis      = 'x'
-      direction = 'right'
-      placement = 'below'
-      scale     = @state.cycleScale
+      axisName      = 'Cycle'
+      origin        = @state.origin
+      axis          = 'x'
+      direction     = 'right'
+      placement     = 'below'
+      scale         = @state.cycleScale
+      axisLineStyle = @axisStyle
     />
 
   renderFluorAxis: ->
     <Axis
-      axisName  = 'Fluorescense'
-      origin    = @state.origin
-      axis      = 'y'
-      direction = 'up'
-      placement = 'left'
-      scale     = @state.fluorScale
+      axisName      = 'Fluorescense'
+      origin        = @state.origin
+      axis          = 'y'
+      direction     = 'up'
+      placement     = 'left'
+      scale         = @state.fluorScale
+      axisLineStyle = @axisStyle
     />
 
   # Eventually this should be a MultiARc instead of many individual lines
   renderFluorLines: ->
     numWellsRendered = 0
+    linesDrawn = 0
     for wellKey, points of @state.bezierPointsByWellKey
+      linesDrawn++
+      # add some color just for fun
+      style =
+        opacity: .8
+        strokeStyle:
+          if linesDrawn < 20
+            'red'
+          else if linesDrawn < 40
+            'orange'
+          else
+            'blue'
+
       pointsForLine = _.map points, ([x,y]) -> {x, y}
       <MultiLine
         points = pointsForLine
+        style  = style
       />
 
   getCycleScale: ->

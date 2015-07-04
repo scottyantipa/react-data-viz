@@ -76,7 +76,6 @@ var measureText = require('./measureText');
 
 /**
  * Sets standard shape options on a ctx.
- * already be loaded.
  *
  * @param {CanvasContext} ctx
  * @param {Object} ctxOptions {ctx_attr, ...}
@@ -85,7 +84,8 @@ function setContextShapeOptions (ctx, ctxOptions) {
   var options = ctxOptions || {};
   var lineWidth   = options.lineWidth,
       opacity     = options.opacity,
-      strokeStyle = options.strokeStyle;
+      strokeStyle = options.strokeStyle,
+      fillStyle   = options.fillStyle;
 
   if (lineWidth != null) {
     ctx.lineWidth = lineWidth;
@@ -95,6 +95,9 @@ function setContextShapeOptions (ctx, ctxOptions) {
   }
   if (strokeStyle != null) {
     ctx.strokeStyle = strokeStyle;
+  }
+  if (fillStyle != null) {
+    ctx.fillStyle = fillStyle;
   }
 }
 
@@ -262,32 +265,24 @@ function drawText (ctx, text, x, y, width, height, fontFace, options) {
   ctx.restore();
 }
 
-function drawPoint (ctx, x, y, radius, options) {
-  var options = options || {};
-
+function drawPoint (ctx, x, y, radius, shapeOptions) {
   ctx.save()
+  setContextShapeOptions(ctx, shapeOptions.style);
 
   ctx.beginPath();
   ctx.arc(Math.round(x), Math.round(y), radius, 0, Math.PI * 2, true);
+
   ctx.closePath();
 
-  if (options.strokeStyle) {
-    ctx.strokeStyle = options.strokeStyle;
-    ctx.stroke();
-  }
-  if (options.fillStyle) {
-    ctx.fillStyle = options.fillStyle;
-    ctx.fill();
-  }
+  ctx.stroke();
+  ctx.fill();
 
   ctx.restore();
 }
 
 function drawLine (ctx, x0, y0, x1, y1, shapeOptions) {
-  var options = shapeOptions || {};
-
   ctx.save();
-  setContextShapeOptions(ctx, options.style);
+  setContextShapeOptions(ctx, shapeOptions.style);
 
   ctx.beginPath();
   ctx.moveTo(Math.round(x0) + 0.5, Math.round(y0) + 0.5);
@@ -298,11 +293,11 @@ function drawLine (ctx, x0, y0, x1, y1, shapeOptions) {
   ctx.restore()
 }
 
-function drawMultiLine (ctx, points, options) {
-  var options = options || {};
+function drawMultiLine (ctx, points, shapeOptions) {
   var i, len, point, point1;
 
   ctx.save()
+  setContextShapeOptions(ctx, shapeOptions.style);
 
   // move ctx to first point
   point1 = points[0]
@@ -314,14 +309,11 @@ function drawMultiLine (ctx, points, options) {
   for (i = 1, len = points.length; i < len; i++) {
     point = points[i];
     ctx.lineTo(Math.round(point.x) + 0.5, Math.round(point.y) + 0.5);
-    // TODO: take optional paramater of drawPoint boolean which would draw a Point at each vertice
   }
 
-  if (options.strokeStyle) {
-    ctx.strokeStyle = options.strokeStyle;
-    ctx.stroke();
-  }
+  ctx.stroke();
   ctx.closePath()
+
   ctx.restore()
 }
 
@@ -923,8 +915,7 @@ function drawGradientRenderLayer (ctx, layer) {
  */
 function drawPointRenderLayer (ctx, layer) {
   CanvasUtils.drawPoint(ctx, layer.frame.x, layer.frame.y, layer.radius, {
-    strokeStyle: layer.strokeStyle || "#000", //black
-    fillStyle: layer.fillStyle || "#FFF", // white
+    style: layer.style || {}
   });
 }
 
@@ -942,7 +933,7 @@ function drawLineRenderLayer (ctx, layer) {
 */
 function drawMultiLineRenderLayer (ctx, layer) {
   CanvasUtils.drawMultiLine(ctx, layer.points, {
-    strokeStyle: layer.strokeStyle || "#000" // black
+    style: layer.style || {}
   });
 }
 
@@ -2723,9 +2714,9 @@ var MultiLine = createComponent('MultiLine', LayerMixin, {
     var style = (props && props.style) ? props.style : {};
     var layer = this.node;
 
-    layer.type = 'multi_line';
-    layer.frame = props.frame;
-    layer.color = style.color;
+    layer.type   = 'multi_line';
+    layer.frame  = props.frame;
+    layer.style  = style;
     layer.points = props.points;
   },
 
@@ -2761,10 +2752,10 @@ var Point = createComponent('Point', LayerMixin, {
     var style = (props && props.style) ? props.style : {};
     var layer = this.node;
 
-    layer.type = 'point';
-    layer.frame = props.frame;
+    layer.type   = 'point';
+    layer.frame  = props.frame;
     layer.radius = props.radius;
-    layer.color = style.color;
+    layer.style  = style;
   },
 
   mountComponent: function (rootID, transaction, context) {

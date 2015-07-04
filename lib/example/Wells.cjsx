@@ -6,7 +6,11 @@ Renders a grid of circles representing a plate
 ###
 Wells = React.createClass
   displayName: 'Wells'
-
+  wellStyle:
+    opacity:     .5
+    fillStyle:   'blue'
+    strokeStyle: 'blue'
+    lineWidth:   2
   render: ->
     <Group>
       {@renderWells()}
@@ -35,7 +39,8 @@ Wells = React.createClass
           height: radius + 5
         <Point
           radius = radius
-          frame = frame
+          frame  = frame
+          style  = @wellStyle
         />
 
 module.exports = Wells

@@ -206,7 +206,7 @@ Axis = React.createClass({
   },
   getInitialState: function() {
     var textAlign;
-    textAlign = this.props.axis === 'y' ? this.props.placement === 'left' ? 'right' : 'left' : 'center';
+    textAlign = this.props.axis === 'y' ? this.props.placement === 'left' ? 'right' : 'left' : 'left';
     return {
       textAlign: textAlign
     };
@@ -237,7 +237,7 @@ Axis = React.createClass({
       return function(tick, index) {
         var left, ref1, style, top, width;
         ref1 = _this.projectDomainValue(tick), left = ref1[0], top = ref1[1];
-        width = _this.props.thickness;
+        width = _this.props.axis === 'y' ? _this.props.thickness : 100;
         left += offsetLeft;
         top += offsetTop;
         style = _.extend({

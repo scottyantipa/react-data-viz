@@ -49,7 +49,7 @@ Axis = React.createClass
         else
           'left'
       else
-        'center'
+        'left'
 
     {textAlign}
 
@@ -69,7 +69,8 @@ Axis = React.createClass
     baseTextStyle.textAlign ?= @state.textAlign
     _.map @props.scale.ticks(50), (tick, index) =>
       [left, top] = @projectDomainValue tick
-      width = @props.thickness
+      # HACK -- need to measure text for x axis
+      width = if @props.axis is 'y' then @props.thickness else 100
       left  += offsetLeft
       top   += offsetTop
       style = _.extend {left, top, width}, baseTextStyle

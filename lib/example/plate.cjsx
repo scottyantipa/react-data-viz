@@ -48,7 +48,7 @@ Plate = React.createClass
       axis         = 'x'
       placement    = 'above'
       direction    = 'right'
-      showAxisLine = true
+      showAxisLine = false
     />
 
   renderRowLabels: ->
@@ -58,7 +58,7 @@ Plate = React.createClass
       axis         = 'y'
       placement    = 'left'
       direction    = 'down'
-      showAxisLine = true
+      showAxisLine = false
     />
 
 module.exports = Plate

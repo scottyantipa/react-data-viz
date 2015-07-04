@@ -51,8 +51,11 @@ TimeSeriesChart = React.createClass
         x: @state.timeScale.map(time) + origin.x
         y: -@state.temperatureScale.map(temperature) + origin.y
 
+      style = {opacity: .5, strokeStyle: 'blue'}
+
       <MultiLine
         points = points
+        style  = style
       />
 
   getOrigin: ->
