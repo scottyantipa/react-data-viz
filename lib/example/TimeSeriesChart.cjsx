@@ -9,6 +9,12 @@ TimeSeriesChart = React.createClass
   axisThickness: 100
   render: ->
     origin = @getOrigin()
+    labelStyle =
+      lineHeight: 20
+      height:     20
+      fontSize:   12
+      color:      'hsl(205, 15%, 51%)'
+
     <Surface
       top    = 0
       left   = 0
@@ -24,6 +30,7 @@ TimeSeriesChart = React.createClass
         origin        = origin
         thickness     = @axisThickness
         axisLineStyle = @getAxisLineStyle()
+        textStyle     = labelStyle
       />
 
       <Axis
@@ -35,6 +42,7 @@ TimeSeriesChart = React.createClass
         origin        = @getOrigin()
         thickness     = @axisThickness
         axisLineStyle = @getAxisLineStyle()
+        textStyle     = labelStyle
         labelForTick  = {(tick) -> "#{tick}˚"}
       />
 
