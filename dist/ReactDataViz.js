@@ -357,10 +357,19 @@ TimeAxis = React.createClass({
     });
   },
   displayName: 'TimeAxis',
+  componentWillReceiveProps: function(newProps) {
+    if (_.isEqual(newProps.scale, this.props.scale)) {
+      return;
+    }
+    return this.setState(this.getTimeFormat());
+  },
   getInitialState: function() {
+    return this.getTimeFormat();
+  },
+  getTimeFormat: function() {
     var day, hour, minute, month, ref, step, timeFormat, timeLabel, year;
     step = this.props.scale.getStep();
-    ref = step < (minute = 1000 * 60) ? ['ss', 's'] : step < (hour = minute * 60) ? ['mm', 'm'] : step < (day = hour * 24) ? ['hh', 'h'] : step < (month = day * 30) ? ['DD', 'd'] : step < (year = month * 12) ? ['MMMM', ''] : void 0, timeFormat = ref[0], timeLabel = ref[1];
+    ref = step < 10 * (minute = 1000 * 60) ? ['ss', 's'] : step < 5 * (hour = minute * 60) ? ['mm', 'm'] : step < 2 * (day = hour * 24) ? ['hh', 'h'] : step < (month = day * 30) ? ['DD', 'd'] : step < (year = month * 12) ? ['MMMM', ''] : ['ss', 's'], timeFormat = ref[0], timeLabel = ref[1];
     return {
       timeFormat: timeFormat,
       timeLabel: timeLabel
