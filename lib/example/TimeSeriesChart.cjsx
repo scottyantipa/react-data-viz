@@ -6,14 +6,9 @@ MultiLine}  = ReactCanvas
 
 TimeSeriesChart = React.createClass
   displayName: 'TimeSeriesChart'
-  axisThickness: 50
-
-  getInitialState: ->
-    loaded: false
-
+  axisThickness: 100
   render: ->
-    return <div>Loading</div> if not @state.loaded
-
+    origin = @getOrigin()
     labelStyle =
       lineHeight: 20
       height:     20
@@ -23,8 +18,8 @@ TimeSeriesChart = React.createClass
     <Surface
       top    = 0
       left   = 0
-      width  = {@state.timeScale.range[1]}
-      height = {@state.temperatureScale.range[1] + @axisThickness}
+      width  = {@state.timeScale.range[1] + 200}
+      height = {@state.temperatureScale.range[1] + 200}
     >
       <TimeAxis
         axisName      = 'Time'
@@ -32,7 +27,7 @@ TimeSeriesChart = React.createClass
         axis          = 'x'
         placement     = 'below'
         direction     = 'right'
-        origin        = @state.origin
+        origin        = origin
         thickness     = @axisThickness
         axisLineStyle = @getAxisLineStyle()
         textStyle     = labelStyle
@@ -44,7 +39,7 @@ TimeSeriesChart = React.createClass
         axis          = 'y'
         placement     = 'left'
         direction     = 'up'
-        origin        = @state.origin
+        origin        = @getOrigin()
         thickness     = @axisThickness
         axisLineStyle = @getAxisLineStyle()
         textStyle     = labelStyle
@@ -59,9 +54,10 @@ TimeSeriesChart = React.createClass
     opacity: .2
 
   renderTemperatureLine: ->
+      origin = @getOrigin()
       points = _.map @state.data, ({time, temperature}) =>
-        x: @state.timeScale.map(time) + @state.origin.x
-        y: -@state.temperatureScale.map(temperature) + @state.origin.y
+        x: @state.timeScale.map(time) + origin.x
+        y: -@state.temperatureScale.map(temperature) + origin.y
 
       style = {opacity: .5, strokeStyle: 'blue'}
 
@@ -70,54 +66,33 @@ TimeSeriesChart = React.createClass
         style  = style
       />
 
+  getOrigin: ->
+    x: @axisThickness
+    y: @state.temperatureScale.range[1] + @axisThickness
 
-  setChartDimensions: (callback) ->
+  getInitialState: ->
     start = new Date(2011, 1, 1).getTime()
     end   = new Date(2012, 6, 1).getTime()
-
-    $parent = $(@getDOMNode()).parent()
-    [width, height] = [$parent.width(), $parent.height()]
-
-    origin =
-      x: @axisThickness
-      y: height - @axisThickness
 
     timeScale =
       new LinearScale
         domain: [start, end]
-        range:  [0, width - origin.x]
+        range:  [0, 500]
 
     temperatureScale =
       new LinearScale
         domain: [0, 90]
-        range:  [0, origin.y]
+        range:  [0, 500]
 
-    @setState(
-      {
-        width
-        height
-        origin
-        timeScale
-        temperatureScale
-      }
-      => if callback then callback()
-    )
+    data =
+      for tick in timeScale.ticks()
+        temp = Math.random() * 90
+        {time: tick, temperature: temp}
 
-  getRandomData: ->
-    for tick in @state.timeScale.ticks()
-      temp = Math.random() * 90
-      {time: tick, temperature: temp}
+    # have the final value be at 40 just because it's good to
+    # visually see the y min value being rendered in the right place
+    data.push {time: end, temperature: 40}
 
-  # Now that we're loaded in the DOM, use parent to calculate our chart dimensions
-  componentDidMount: ->
-    @debouncedSetChartDimensions = _.debounce @setChartDimensions, 300
-    window.addEventListener 'resize', => @debouncedSetChartDimensions()
-    @setChartDimensions =>
-      @setState
-        data: @getRandomData()
-        loaded: true
-
-  componentWillUnmount: ->
-    window.removeEventListener 'resize', @debouncedSetChartDimensions
+    {timeScale, temperatureScale, data}
 
 module.exports = TimeSeriesChart

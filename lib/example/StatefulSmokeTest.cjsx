@@ -13,7 +13,8 @@ StatefulSmokeTest = React.createClass
       }, @defaultFontStyling())
 
     <div
-      className = 'stateful-smoke-test'
+      className = '.stateful-smoke-test'
+      style = {position: 'absolute', top: 50, left: 50}
     >
       <div>This component stores numLines as state.  It should render each line with a number next to it.  Toggle numLines below.</div>
       {@renderButtons()}
