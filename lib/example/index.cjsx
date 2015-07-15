@@ -20,13 +20,17 @@ Index = React.createClass
       when 'QPCRDashboard'
         <QPCRDashboard/>
       when 'TimeSeriesChart'
-        <TimeSeriesChart/>
+        <div
+          className = 'time-series-chart'
+        >
+          <TimeSeriesChart/>
+        </div>
       when 'StatefulSmokeTest'
         <StatefulSmokeTest/>
 
 
   renderChartOptions: ->
-    <div>
+    <div className = 'chart-options'>
 
       <button
         onClick = { => @setState chartToShow: 'QPCRDashboard'}
