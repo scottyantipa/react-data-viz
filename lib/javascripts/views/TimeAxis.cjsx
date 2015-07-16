@@ -12,6 +12,7 @@ TimeAxis = React.createClass
     textStyle,
     offset,
     otherAxisLength,
+    showAxisLine,
     axisLineStyle} = @props
 
     <Axis
@@ -25,6 +26,7 @@ TimeAxis = React.createClass
       textStyle       = textStyle
       offset          = offset
       otherAxisLength = otherAxisLength
+      showAxisLine    = showAxisLine
       axisLineStyle   = axisLineStyle
     />
 
