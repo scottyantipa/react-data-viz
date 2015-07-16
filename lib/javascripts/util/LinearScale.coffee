@@ -21,7 +21,10 @@ class LinearScale
     @b = @range[0] - (@m * @domain[0]) # just a simple y = mx + b subsitution
 
   map: (x) ->
-    @m * x + @b
+    if @dx is 0
+      @range[0] + .5 * @dy
+    else
+      @m * x + @b
 
   invert: (y) ->
     (y - @b) / m
@@ -37,16 +40,14 @@ class LinearScale
     exp = Math.floor Math.log(@dx) / Math.LN10
     step = Math.pow 10, exp
 
-  # This will return an array of domain values
-  # which when mapped are all at least minGapInRange apart
-  # This useful for rendering labels on an axis
-  # TODO: right now it just finds a good multiple of 10, but
-  # instead it should smartly find nice even values like 250, 500, 1000, ...
-  ticks: ->
+  # This will return an array of domain values separated by a power of 10
+  ticks: (minGapInRange) ->
+    if @dx is 0
+      return [@domain[0]]
     step = @getStep()
     currentVal = @domain[0]
     ticks = [] # always return the first (it should be 0)
-    while currentVal < @domain[1]
+    while currentVal <= @domain[1]
       ticks.push currentVal
       currentVal = currentVal + step
 
