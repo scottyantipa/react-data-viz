@@ -19,25 +19,29 @@ Axis = React.createClass
     </Group>
 
   propTypes:
-    axis:          React.PropTypes.string.isRequired # 'x' or 'y'
-    direction:     React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
-    placement:     React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
-    scale:         React.PropTypes.object.isRequired
-    origin:        React.PropTypes.object # assumed to be [0,0]
-    textStyle:     React.PropTypes.object
-    showAxisLine:  React.PropTypes.bool
-    axisLineStyle: React.PropTypes.object
-    labelForTick:  React.PropTypes.func
-    thickness:     React.PropTypes.number # y axis width, x axis height
+    axis:            React.PropTypes.string.isRequired # 'x' or 'y'
+    direction:       React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
+    placement:       React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
+    scale:           React.PropTypes.object.isRequired
+    offset:          React.PropTypes.number # number in [0,1] describes where to place the whole axis (0 is at origin, 1 is opposite side)
+    otherAxisLength: React.PropTypes.number # e.g. length of x axis if this is the y axis
+    origin:          React.PropTypes.object
+    textStyle:       React.PropTypes.object
+    showAxisLine:    React.PropTypes.bool
+    axisLineStyle:   React.PropTypes.object
+    labelForTick:    React.PropTypes.func
+    thickness:       React.PropTypes.number # y axis width, x axis height
 
   getDefaultProps: ->
-    origin:       {x: 0, y: 0}
+    origin: {x: 0, y: 0}
     showAxisLine: true
-    thickness:    100
+    thickness: 100
     textStyle:
       lineHeight: 20
       height:     20
       fontSize:   12
+    offset:       0
+    otherAxisLength: 0
     axisLineStyle: {} # use current ctx styles
     labelForTick: (tick) -> tick.toString() # e.g. if you want an epoch displayed as a proper time format
 
@@ -101,7 +105,7 @@ Axis = React.createClass
             when 'left' then -projected + origin.x
 
         when 'y'
-          origin.x
+          origin.x + @props.otherAxisLength * @props.offset
 
     top =
       switch axis
@@ -110,7 +114,7 @@ Axis = React.createClass
             when 'down' then projected + origin.y # drawing in positive direction
             when 'up' then -projected + origin.y
         when 'x'
-          origin.y
+          origin.y - @props.otherAxisLength * @props.offset
 
     [left, top]
 
@@ -124,7 +128,7 @@ Axis = React.createClass
         when 'y'
           switch placement
             when 'left' then -@props.thickness - 15
-            when 'right' then @props.thickness + 15
+            when 'right' then 15
 
     top =
       switch axis

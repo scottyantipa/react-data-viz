@@ -61,7 +61,6 @@ TimeSeriesChart = React.createClass
         height = {temperatureScale.range[1] + 200}
       >
         <TimeAxis
-          axisName      = 'Time'
           scale         = timeScale
           axis          = 'x'
           placement     = 'below'
@@ -73,16 +72,18 @@ TimeSeriesChart = React.createClass
         />
 
         <Axis
-          axisName      = 'Temp'
-          scale         = temperatureScale
-          axis          = 'y'
-          placement     = 'left'
-          direction     = 'up'
-          origin        = origin
-          thickness     = @axisThickness
-          axisLineStyle = @getAxisLineStyle()
-          textStyle     = labelStyle
-          labelForTick  = {(tick) -> "#{tick}˚"}
+          axisName        = 'Temp'
+          scale           = temperatureScale
+          axis            = 'y'
+          placement       = 'right'
+          direction       = 'up'
+          offset          = 1
+          otherAxisLength = timeScale.dy
+          origin          = origin
+          thickness       = @axisThickness
+          axisLineStyle   = @getAxisLineStyle()
+          textStyle       = labelStyle
+          labelForTick    = {(tick) -> "#{tick}˚"}
         />
 
         <MultiLine
