@@ -1,6 +1,6 @@
 {Text,
 Line,
-Group}    = ReactCanvas
+Group} = ReactCanvas
 
 ###
 Renders the axis for a chart.  See propTypes for description

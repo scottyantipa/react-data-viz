@@ -1,12 +1,11 @@
 # A simple 1 to 1 scale
 # x is the domain, y is the range
 
-# NOTE: only working for positive values
 class LinearScale
   domain: []
   range: []
   dx: 1 # change in domain
-  dy: 1 # change in
+  dy: 1 # change in range
 
   # y = mx + b
   m: null
