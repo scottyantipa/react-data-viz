@@ -17,8 +17,11 @@ TimeSeriesChart = React.createClass
   axisThickness: 100
 
   getInitialState: ->
+    [start, end] = @initRange()
+    @incrementDateBy.twoYears end
+
     tempRange:      [0, 100]
-    timeRange:      @sixMonths()
+    timeRange:      [start.getTime(), end.getTime()]
     dataDispersion: 'weekly' # how much data to show ('ticks' is scale.ticks())
 
   render: ->
@@ -110,7 +113,7 @@ TimeSeriesChart = React.createClass
     <div className = 'data-options'>
       <span>Data Range</span>
       {
-        _.map ['ticks', 'daily', 'weekly', 'monthly', 'yearly'], (timeGranularity) =>
+        _.map ['fit', 'daily', 'weekly', 'monthly', 'yearly'], (timeGranularity) =>
           <button
             onClick = {=> @setState dataDispersion: timeGranularity}
           >
@@ -141,87 +144,59 @@ TimeSeriesChart = React.createClass
     </div>
 
   renderTimeRangeOptions: ->
+    timeFrames = Object.keys @incrementDateBy
+
+    buttons = _.map timeFrames, (timeFrame) =>
+      onClick = =>
+        [start, end] = @initRange()
+        @incrementDateBy[timeFrame] end
+        @setState
+          timeRange: [start.getTime(), end.getTime()]
+
+      <button onClick = onClick>
+        {timeFrame}
+      </button>
+
     <div className = 'time-range-options'>
       <span>Time Range</span>
-      <button
-        onClick = {=> @setState timeRange: @oneDay()}
-      >
-        1 day
-      </button>
-      <button
-        onClick = {=> @setState timeRange: @oneMonth()}
-      >
-        1 month
-      </button>
-      <button
-        onClick = {=> @setState timeRange: @sixMonths()}
-      >
-        6 months
-      </button>
-      <button
-        onClick = {=> @setState timeRange: @twoYears()}
-      >
-        2 years
-      </button>
-      <button
-        onClick = {=> @setState timeRange: @tenYears()}
-      >
-        10 years
-      </button>
-      <button
-        onClick = {=> @setState timeRange: @twoHundredYears()}
-      >
-        200 years
-      </button>
+      {buttons}
     </div>
-
-  oneDay: ->
-    [
-      new Date(2011, 1, 1).getTime()
-      new Date(2011, 1, 2).getTime()
-    ]
-  oneMonth: ->
-    [
-      new Date(2011, 1, 1).getTime()
-      new Date(2011, 2, 1).getTime()
-    ]
-  sixMonths: ->
-    [
-      new Date(2011, 1, 1).getTime()
-      new Date(2011, 6, 1).getTime()
-    ]
-  twoYears: ->
-    [
-      new Date(2011, 1, 1).getTime()
-      new Date(2013, 1, 1).getTime()
-    ]
-  tenYears: ->
-    [
-      new Date(2011, 1, 1).getTime()
-      new Date(2021, 1, 1).getTime()
-    ]
-  twoHundredYears: ->
-    [
-      new Date(2011, 1, 1).getTime()
-      new Date(2211, 1, 1).getTime()
-    ]
+  #
+  # Utils for setting various time ranges
+  #
+  baseDate: -> new Date 2011, 1, 1
+  initRange: -> [@baseDate(), @baseDate()]
+  incrementDateBy:
+    halfHour: (date) ->
+      date.setMinutes date.getMinutes() + 30
+    oneHour: (date) ->
+      date.setHours date.getHours() + 1
+    oneDay: (date) ->
+      date.setDate date.getDate() + 1
+    oneMonth: (date) ->
+      date.setMonth date.getMonth() + 1
+    sixMonths: (date) ->
+      date.setMonth date.getMonth() + 6
+    twoYears: (date) ->
+      date.setYear date.getFullYear() + 2
+    tenYears: (date) ->
+      date.setYear date.getFullYear() + 10
+    twoHundredYears: (date) ->
+      date.setYear date.getFullYear() + 200
 
   generateData: (timeScale) ->
     tempDelta = @state.tempRange[1] - @state.tempRange[0]
-
     randTemp = => @state.tempRange[0] + Math.random() * tempDelta
-
     pointsForStep = (step) ->
       currentTime = timeScale.domain[0]
       data = [currentTime]
       while (currentTime += step) <= timeScale.domain[1]
         data.push
-          time: currentTime
+          time:        currentTime
           temperature: randTemp()
       data
-
     switch @state.dataDispersion
-      when 'ticks'
+      when 'fit'
         for tick in timeScale.ticks()
           temp = randTemp()
           {time: tick, temperature: temp}

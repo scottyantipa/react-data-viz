@@ -14,7 +14,7 @@ If days are the smallest grain we can show, it will also render months and years
 TimeAxis = React.createClass
   displayName: 'TimeAxis'
 
-  POSSIBLE_GRAINS: ["hour", "day" ,"month","year"]
+  POSSIBLE_GRAINS: ["minute", "hour", "day" ,"month","year"]
 
   PIXELS_BETWEEN_HASHES:  12 # minimal padding between every vert line in the time axis
   SMALLEST_HASH_MARK:     15 # shortest length of vert lines in time axis
@@ -63,7 +63,7 @@ TimeAxis = React.createClass
         y1: origin.y + y1
 
       style = _.extend @props.axisLineStyle,
-        opacity: .2
+        opacity: .1
 
       <Line
         style = style
@@ -258,6 +258,13 @@ TimeAxis = React.createClass
     increment = # a function that increments a single date grain
       switch grain
 
+        when "minute"
+          if startDate.getMilliseconds() isnt 0
+            startDate.setMinutes startDate.getMinutes() + 1
+            startDate.setMilliseconds 0
+          (tickDate) =>
+            tickDate.setMinutes tickDate.getMinutes() + 1
+
         when "hour"
           if startDate.getSeconds() isnt 0
             startDate.setHours startDate.getHours() + 1
@@ -393,9 +400,45 @@ TimeAxis = React.createClass
   ###
   formatTimeAxisLabel: (tick, truncateIndex = 0) ->
     {date, grain, row, numRows, isFirstTick} = tick
-    {year, month, week, day} = dateObj = DateUtils.timeToDateObj date.getTime()
+    dateObj = DateUtils.timeToDateObj date.getTime()
 
-    getMonth = ->
+    val =
+      if formatter = @formatLabelByGrain[grain]
+        formatter truncateIndex, dateObj
+      else # the default formatting
+        switch truncateIndex
+          when 0
+            dateObj[grain]
+          else
+            ""
+    val.toString()
+
+  formatLabelByGrain:
+    minute: (truncateIndex, {minute}) ->
+      switch truncateIndex
+        when 0
+          minute + 'm'
+        when 1
+          minute
+        else
+          ""
+    hour: (truncateIndex, {hour}) ->
+      switch truncateIndex
+        when 0
+          hour + 'h'
+        when 1
+          hour
+        else
+          ""
+    day: (truncateIndex, {date}) -> # Takes a Date object for moment to use
+      switch truncateIndex
+        when 0
+          moment(date).format "Do" # Formats 31 as 31st
+        when 1
+          date.getDate()
+        else
+          ""
+    month: (truncateIndex, {month}) ->
       standardMonth = DateUtils.MONTH_INFOS[month].name
       switch truncateIndex
         when 0
@@ -405,42 +448,7 @@ TimeAxis = React.createClass
         when 2
           standardMonth[0]
         else
-          # If it's the outermost row, then you have to show something so show first letter
-          if row is numRows then standardMonth[0] else ""
-
-    getDay = ->
-      switch truncateIndex
-        when 0
-          moment(date).format "Do" # Formats 31 as 31st
-        when 1
-          dateObj[grain]
-        else
           ""
-    getHour = ->
-      switch truncateIndex
-        when 0
-          dateObj[grain] + 'hr'
-        when 1
-          dateObj[grain]
-        else
-          ""
-
-    val =
-      switch grain
-        when "month"
-          getMonth()
-        when "day"
-          getDay()
-        when "hour"
-          getHour()
-        else # the default formatting
-          switch truncateIndex
-            when 0
-              dateObj[grain]
-            else
-              # this is the smallest text we can show for that tick
-              if row is numRows then dateObj[grain] else ""
-    val.toString()
 
   formatKeyForTick: (tick) ->
     [

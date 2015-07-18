@@ -14,18 +14,23 @@ DateUtils =
     date = new Date time
     if isNaN(date.getTime()) then return false
 
-    year: date.getFullYear()
-    month: date.getMonth()
-    week: 4 * (date.getMonth()) + (Math.floor(date.getDate() / 7) + 1)
-    day: date.getDate()
-    hour: date.getHours()
+    year:   date.getFullYear()
+    month:  date.getMonth()
+    week:   4 * (date.getMonth()) + (Math.floor(date.getDate() / 7) + 1)
+    day:    date.getDate()
+    hour:   date.getHours()
+    minute: date.getMinutes()
+    date:   date
 
 
-  # i.e. January will return the first day of Feb, or 2008 will return first
-  # day of 2009
+  # Example: January will return the first day of Feb
+  # Example: 2008 will return first day of 2009
   dateOfNextScale: (date, grain) ->
     d = new Date date.getTime()
     switch grain
+      when "minute"
+        d.setMinutes d.getMinutes() + 1
+        d.setSeconds 0
       when "hour"
         d.setHours d.getHours() + 1
         d.setMinutes 0
