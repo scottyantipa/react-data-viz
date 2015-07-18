@@ -154,6 +154,11 @@ TimeSeriesChart = React.createClass
         2 years
       </button>
       <button
+        onClick = {=> @setState timeRange: @tenYears()}
+      >
+        10 years
+      </button>
+      <button
         onClick = {=> @setState timeRange: @twoHundredYears()}
       >
         200 years
@@ -168,6 +173,11 @@ TimeSeriesChart = React.createClass
     [
       new Date(2011, 1, 1).getTime()
       new Date(2013, 1, 1).getTime()
+    ]
+  tenYears: ->
+    [
+      new Date(2011, 1, 1).getTime()
+      new Date(2021, 1, 1).getTime()
     ]
   twoHundredYears: ->
     [

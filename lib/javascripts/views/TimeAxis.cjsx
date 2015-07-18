@@ -1,6 +1,9 @@
 Axis      = require './Axis.cjsx'
 DateUtils = require '../util/DateUtils.coffee'
 {measureText,
+Line,
+Group,
+Text,
 FontFace} = ReactCanvas
 
 TimeAxis = React.createClass
@@ -11,35 +14,46 @@ TimeAxis = React.createClass
   KEY_DIVIDER: "::"
 
   render: ->
+    {origin} = @props
 
-    shapes = @calcShapes()
+    {axisLabels} = @calcShapes()
 
-    {axisName,
-    scale,
-    axis,
-    placement,
-    direction,
-    origin,
-    textStyle,
-    offset,
-    otherAxisLength,
-    showAxisLine,
-    axisLineStyle} = @props
 
-    <Axis
-      axisName        = axisName
-      origin          = origin
-      labelForTick    = @labelForTick
-      scale           = scale
-      axis            = axis
-      placement       = placement
-      direction       = direction
-      textStyle       = textStyle
-      offset          = offset
-      otherAxisLength = otherAxisLength
-      showAxisLine    = showAxisLine
-      axisLineStyle   = axisLineStyle
-    />
+    axisFrame =
+      x0: origin.x
+      y0: origin.y
+      x1: origin.x + @props.scale.range[1]
+      y1: origin.y
+
+
+    <Group>
+
+      {
+        _.map axisLabels, (label, index) =>
+          {x, y, text, fontSize, width} = label
+          baseTextStyle = _.clone @props.textStyle
+          style = _.extend baseTextStyle,
+            left: x + origin.x
+            top: y + origin.y
+            fontSize: fontSize
+            width: width
+
+          <Text
+            style = style
+            key   = index
+          >
+            {text}
+          </Text>
+
+      }
+
+      <Line
+        frame = axisFrame
+        style = @props.axisLineStyle
+      />
+
+    </Group>
+
 
   displayName: 'TimeAxis'
 
@@ -184,7 +198,7 @@ TimeAxis = React.createClass
         text = @formatTimeAxisLabel tick, truncateIndex
         continue if not text # we won't display them at all because there's no space
         textWidth = @getTextMetrics(text, fontSize).lines[0].width
-        $.extend tick, {text, fontSize, textWidth}
+        $.extend tick, {text, fontSize, width: textWidth}
         tick = @formatTickLayout tick
         continue if tick.x + textWidth > @props.scale.dy # don't draw it if the label goes over the chart width
         innerTicksToDraw.push tick
@@ -214,6 +228,7 @@ TimeAxis = React.createClass
         tick = @formatTickLayout(tick)
         $.extend tick, {text, fontSize}
         continue if tick.x + textWidth > @props.scale.dy # don't draw the label if it goes over the edge
+        tick.width = textWidth
         outerTicksToDraw.push tick
 
     # push in our shapes
@@ -311,14 +326,14 @@ TimeAxis = React.createClass
   getX: (shape, timeScale = @props.scale) ->
     isLabel = @typeOfShapeFromKey(shape.key) is 'tick'
     if isLabel
-      {row, numRows, date, grain, textWidth} = shape
+      {row, numRows, date, grain, width} = shape
       epoch = date.getTime()
       if row is numRows
         timeScale.map(epoch) + 5 # some padding
       else # middle align the text
         middleEpoch = DateUtils.midPointOfGrain(date, grain).getTime()
         centerInPixels = timeScale.map middleEpoch
-        centerInPixels - textWidth/2
+        centerInPixels - width/2
     else
       epoch = shape.date.getTime()
       timeScale.map epoch
@@ -371,7 +386,7 @@ TimeAxis = React.createClass
         200, # default width.  Still not sure why this has to be passed
         @FONT_FACE,
         fontSize,
-        fontSize + 5 # lineHeight
+        fontSize
       )
   ###
   This formats the labels on the time line axis
@@ -412,20 +427,22 @@ TimeAxis = React.createClass
           dateObj[grain]
         else
           ""
-    switch grain
-      when "month"
-        getMonth()
-      when "quarter"
-        getQuarter()
-      when "day"
-        getDay()
-      else # the default formatting
-        switch truncateIndex
-          when 0
-            dateObj[grain]
-          else
-            # this is the smallest text we can show for that tick (month and quarter override this)
-            if row is numRows then dateObj[grain] else ""
+    val =
+      switch grain
+        when "month"
+          getMonth()
+        when "quarter"
+          getQuarter()
+        when "day"
+          getDay()
+        else # the default formatting
+          switch truncateIndex
+            when 0
+              dateObj[grain]
+            else
+              # this is the smallest text we can show for that tick (month and quarter override this)
+              if row is numRows then dateObj[grain] else ""
+    val.toString()
 
   formatKeyForTick: (tick) ->
     "tick#{@KEY_DIVIDER}#{tick.grain}#{@KEY_DIVIDER}#{tick.dateString}"
