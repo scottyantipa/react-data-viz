@@ -16,7 +16,7 @@ TimeAxis = React.createClass
   render: ->
     {origin} = @props
 
-    {axisLabels} = @calcShapes()
+    {axisLabels, axisTicks} = @calcShapes()
 
 
     axisFrame =
@@ -25,27 +25,44 @@ TimeAxis = React.createClass
       x1: origin.x + @props.scale.range[1]
       y1: origin.y
 
+    labels = _.map axisLabels, (label, index) =>
+      {x, y, text, fontSize, width} = label
+      baseTextStyle = _.clone @props.textStyle
+      style = _.extend baseTextStyle,
+        left: x + origin.x
+        top: y + origin.y
+        fontSize: fontSize
+        width: width
+
+      <Text
+        style = style
+        key   = index
+      >
+        {text}
+      </Text>
+
+    hashes = _.map axisTicks, (tick, index) =>
+      {x, y0, y1}  = tick
+      x += origin.x
+      frame =
+        x0: x
+        y0: origin.y + y0
+        x1: x
+        y1: origin.y + y1
+
+      style = _.extend @props.axisLineStyle,
+        opacity: .2
+
+      <Line
+        style = style
+        frame = frame
+      />
 
     <Group>
 
-      {
-        _.map axisLabels, (label, index) =>
-          {x, y, text, fontSize, width} = label
-          baseTextStyle = _.clone @props.textStyle
-          style = _.extend baseTextStyle,
-            left: x + origin.x
-            top: y + origin.y
-            fontSize: fontSize
-            width: width
+      {labels}
 
-          <Text
-            style = style
-            key   = index
-          >
-            {text}
-          </Text>
-
-      }
+      {hashes}
 
       <Line
         frame = axisFrame
@@ -301,10 +318,6 @@ TimeAxis = React.createClass
   # Styling
   #--------------------------------------------------------------------------------
 
-  getOpacity: (shape) ->
-    isLabel = @typeOfShapeFromKey(shape.key) is 'tick'
-    if isLabel then 1 else .2
-
   getFontSize: (row, numRows) ->
     if row is numRows
       @FONT_LARGEST_TIME_AXIS
@@ -361,7 +374,6 @@ TimeAxis = React.createClass
     $.extend tick,
       y: @getY tick
       x: @getX tick
-      opacity: @getOpacity tick
     tick
 
 
@@ -369,11 +381,9 @@ TimeAxis = React.createClass
   formatHashMarkLayout: (tickHash) ->
     x = @getX tickHash
     $.extend tickHash,
-      x0: x
-      x1: x
+      x: x
       y0: 0
       y1: @getY tickHash
-      opacity: @getOpacity tickHash
     tickHash
 
   # ----------------------------------------------
