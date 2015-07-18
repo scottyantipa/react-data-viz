@@ -9,7 +9,182 @@ ReactDataViz = {
 };
 
 window.ReactDataViz = ReactDataViz;
-},{"./javascripts/util/LinearScale.coffee":2,"./javascripts/util/OrdinalScale.coffee":3,"./javascripts/views/Axis.cjsx":4,"./javascripts/views/TimeAxis.cjsx":5}],2:[function(require,module,exports){
+},{"./javascripts/util/LinearScale.coffee":3,"./javascripts/util/OrdinalScale.coffee":4,"./javascripts/views/Axis.cjsx":5,"./javascripts/views/TimeAxis.cjsx":6}],2:[function(require,module,exports){
+var DateUtils;
+
+DateUtils = {
+  midPointOfGrain: function(date, grain) {
+    var halfDiff, nextDate;
+    nextDate = this.dateOfNextScale(date, grain);
+    if (!nextDate) {
+      return this.DATE_GRAIN_INFO[grain].numMilSeconds / 2;
+    }
+    halfDiff = (nextDate.getTime() - date.getTime()) / 2;
+    return new Date(date.getTime() + halfDiff);
+  },
+  timeToDateObj: function(time) {
+    var date;
+    date = new Date(time);
+    if (isNaN(date.getTime())) {
+      return false;
+    }
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth(),
+      week: 4 * (date.getMonth()) + (Math.floor(date.getDate() / 7) + 1),
+      day: date.getDate(),
+      hour: date.getHours()
+    };
+  },
+  dateOfNextScale: function(date, grain) {
+    var d;
+    d = new Date(date.getTime());
+    switch (grain) {
+      case "hour":
+        d.setHours(d.getHours() + 1);
+        d.setMinutes(0);
+        break;
+      case "day":
+        d.setDate(d.getDate() + 1);
+        d.setHours(0);
+        break;
+      case "week":
+        d.setDate(d.getDate() + 7);
+        break;
+      case "month":
+        d.setMonth(d.getMonth() + 1);
+        d.setDate(1);
+        break;
+      case "year":
+        d.setYear(d.getFullYear() + 1);
+        d.setMonth(0);
+        break;
+      default:
+        null;
+    }
+    return d;
+  },
+  getFebDays: function(year) {
+    var dateObj, i, mnth;
+    if (!this.isValidYear(year)) {
+      return false;
+    }
+    mnth = 1;
+    i = 0;
+    while (mnth === 1) {
+      i++;
+      dateObj = new Date(year, 1, i);
+      mnth = dateObj.getMonth();
+    }
+    return i - 1;
+  },
+  isValidMonth: function(month) {
+    return _.isNumber(month) && [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].indexOf(month) !== -1;
+  },
+  isValidYear: function(year) {
+    return _.isNumber(year) && year.toString().length === 4;
+  },
+  DATE_GRAIN_INFO: {
+    second: {
+      name: "second",
+      index: 1,
+      numMilSeconds: 1000
+    },
+    minute: {
+      name: "minute",
+      index: 2,
+      numMilSeconds: 60000
+    },
+    hour: {
+      name: "hour",
+      index: 3,
+      numMilSeconds: 3600000
+    },
+    day: {
+      name: "day",
+      index: 4,
+      numMilSeconds: 86400000
+    },
+    month: {
+      name: "month",
+      index: 5,
+      numMilSeconds: null
+    },
+    year: {
+      name: "year",
+      index: 7,
+      numMilSeconds: null
+    }
+  },
+  MONTH_INFOS: [
+    {
+      calInt: 0,
+      name: 'Jan',
+      days: 31,
+      longName: 'January'
+    }, {
+      calInt: 1,
+      name: 'Feb',
+      days: null,
+      longName: 'February'
+    }, {
+      calInt: 2,
+      name: 'Mar',
+      days: 31,
+      longName: 'March'
+    }, {
+      calInt: 3,
+      name: 'Apr',
+      days: 30,
+      longName: 'April'
+    }, {
+      calInt: 4,
+      name: 'May',
+      days: 31,
+      longName: 'May'
+    }, {
+      calInt: 5,
+      name: 'Jun',
+      days: 30,
+      longName: 'June'
+    }, {
+      calInt: 6,
+      name: 'Jul',
+      days: 31,
+      longName: 'July'
+    }, {
+      calInt: 7,
+      name: 'Aug',
+      days: 31,
+      longName: 'August'
+    }, {
+      calInt: 8,
+      name: 'Sep',
+      days: 30,
+      longName: 'September'
+    }, {
+      calInt: 9,
+      name: 'Oct',
+      days: 31,
+      longName: 'October'
+    }, {
+      calInt: 10,
+      name: 'Nov',
+      days: 30,
+      longName: 'November'
+    }, {
+      calInt: 11,
+      name: 'Dec',
+      days: 31,
+      longName: 'December'
+    }
+  ]
+};
+
+module.exports = DateUtils;
+
+
+},{}],3:[function(require,module,exports){
 var LinearScale;
 
 LinearScale = (function() {
@@ -81,7 +256,7 @@ LinearScale = (function() {
 module.exports = LinearScale;
 
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var LinearScale, OrdinalScale,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -164,7 +339,7 @@ OrdinalScale = (function(superClass) {
 module.exports = OrdinalScale;
 
 
-},{"./LinearScale.coffee":2}],4:[function(require,module,exports){
+},{"./LinearScale.coffee":3}],5:[function(require,module,exports){
 var Axis, Group, Line, Text;
 
 Text = ReactCanvas.Text, Line = ReactCanvas.Line, Group = ReactCanvas.Group;
@@ -346,56 +521,530 @@ Axis = React.createClass({
 module.exports = Axis;
 
 
-},{}],5:[function(require,module,exports){
-var Axis, TimeAxis;
+},{}],6:[function(require,module,exports){
+var Axis, DateUtils, FontFace, Group, Line, Text, TimeAxis, measureText;
 
 Axis = require('./Axis.cjsx');
 
+DateUtils = require('../util/DateUtils.coffee');
+
+measureText = ReactCanvas.measureText, Line = ReactCanvas.Line, Group = ReactCanvas.Group, Text = ReactCanvas.Text, FontFace = ReactCanvas.FontFace;
+
+
+/*
+Renders a time axis with multiple levels of granularity.  For example,
+If days are the smallest grain we can show, it will also render months and years.
+"Ticks" denote a position on the axis.  A "Hash" is a vertical line marking the axis.
+ */
+
 TimeAxis = React.createClass({
+  displayName: 'TimeAxis',
+  POSSIBLE_GRAINS: ["hour", "day", "month", "year"],
+  PIXELS_BETWEEN_HASHES: 12,
+  SMALLEST_HASH_MARK: 15,
+  FONT_LARGEST_TIME_AXIS: 13,
+  FONT_FACE: FontFace.Default(600),
+  KEY_DIVIDER: "::",
   render: function() {
-    var axis, axisLineStyle, axisName, direction, offset, origin, otherAxisLength, placement, ref, scale, textStyle;
-    ref = this.props, axisName = ref.axisName, scale = ref.scale, axis = ref.axis, placement = ref.placement, direction = ref.direction, origin = ref.origin, textStyle = ref.textStyle, offset = ref.offset, otherAxisLength = ref.otherAxisLength, axisLineStyle = ref.axisLineStyle;
-    return React.createElement(Axis, {
-      "axisName": axisName,
-      "origin": origin,
-      "labelForTick": this.labelForTick,
-      "scale": scale,
-      "axis": axis,
-      "placement": placement,
-      "direction": direction,
-      "textStyle": textStyle,
-      "offset": offset,
-      "otherAxisLength": otherAxisLength,
-      "axisLineStyle": axisLineStyle
+    var axisHashes, axisLabels, ref;
+    ref = this.calcShapes(), axisLabels = ref.axisLabels, axisHashes = ref.axisHashes;
+    return React.createElement(Group, null, this.renderLabels(axisLabels), this.renderHashes(axisHashes), this.renderAxisLine());
+  },
+  renderLabels: function(labels) {
+    var origin;
+    origin = this.props.origin;
+    return _.map(labels, (function(_this) {
+      return function(label, index) {
+        var baseTextStyle, fontSize, style, text, width, x, y;
+        x = label.x, y = label.y, text = label.text, fontSize = label.fontSize, width = label.width;
+        baseTextStyle = _.clone(_this.props.textStyle);
+        style = _.extend(baseTextStyle, {
+          left: x + origin.x,
+          top: y + origin.y,
+          fontSize: fontSize,
+          width: width
+        });
+        return React.createElement(Text, {
+          "style": style,
+          "key": index
+        }, text);
+      };
+    })(this));
+  },
+  renderHashes: function(hash) {
+    var origin;
+    origin = this.props.origin;
+    return _.map(hash, (function(_this) {
+      return function(hash, index) {
+        var frame, style, x, y0, y1;
+        x = hash.x, y0 = hash.y0, y1 = hash.y1;
+        x += origin.x;
+        frame = {
+          x0: x,
+          y0: origin.y + y0,
+          x1: x,
+          y1: origin.y + y1
+        };
+        style = _.extend(_this.props.axisLineStyle, {
+          opacity: .2
+        });
+        return React.createElement(Line, {
+          "style": style,
+          "frame": frame
+        });
+      };
+    })(this));
+  },
+  renderAxisLine: function() {
+    var axisFrame, ref, x, y;
+    ref = this.props.origin, x = ref.x, y = ref.y;
+    axisFrame = {
+      x0: x,
+      y0: y,
+      x1: x + this.props.scale.range[1],
+      y1: y
+    };
+    return React.createElement(Line, {
+      "frame": axisFrame,
+      "style": this.props.axisLineStyle
     });
   },
-  displayName: 'TimeAxis',
-  componentWillReceiveProps: function(newProps) {
-    if (_.isEqual(newProps.scale, this.props.scale)) {
-      return;
+  calcShapes: function() {
+    var axisHashes, axisLabels, date, dontDrawGroup, dontDrawLabels, epoch, fontRatio, fontSize, grain, group, groupIndex, hash, hashByKey, i, index, innerTicksToDraw, j, k, l, largestTruncation, len, len1, len10, len11, len2, len3, len4, len5, len6, len7, len8, len9, m, maxWidth, n, numRows, numberSkippedInARow, o, outerMostTickGroup, outerTicksToDraw, p, q, r, ref, ref1, ref2, ref3, row, s, t, text, textWidth, tick, tickGroup, tickGroups, tickIndex, ticks, truncateIndex, u, v, widthOfLargest;
+    numRows = this.POSSIBLE_GRAINS.length;
+    axisLabels = [];
+    axisHashes = [];
+    tickGroups = [];
+    ref = this.POSSIBLE_GRAINS;
+    for (row = j = 0, len = ref.length; j < len; row = ++j) {
+      grain = ref[row];
+      ticks = this.allTicksOnAxisForGrain(grain, this.props.scale);
+      if (!ticks) {
+        continue;
+      }
+      row = row + 1;
+      group = {
+        ticks: ticks,
+        grain: grain,
+        row: row,
+        numRows: numRows
+      };
+      tickGroups.push(group);
     }
-    return this.setState(this.getTimeFormat());
-  },
-  getInitialState: function() {
-    return this.getTimeFormat();
-  },
-  getTimeFormat: function() {
-    var day, hour, minute, month, ref, step, timeFormat, timeLabel, year;
-    step = this.props.scale.getStep();
-    ref = step < 10 * (minute = 1000 * 60) ? ['ss', 's'] : step < 5 * (hour = minute * 60) ? ['mm', 'm'] : step < 2 * (day = hour * 24) ? ['hh', 'h'] : step < (month = day * 30) ? ['DD', 'd'] : step < (year = month * 12) ? ['MMMM', ''] : ['ss', 's'], timeFormat = ref[0], timeLabel = ref[1];
+
+    /*
+    Create the hash marks (the little vertical lines on the time axis).
+    We will draw a hash mark for every tick, however, there will be overlap so we
+    only draw one in this case.  For example, on January, 1, 2001, there are three (for year, month, and day)
+     */
+    for (i = k = 0, len1 = tickGroups.length; k < len1; i = ++k) {
+      tickGroup = tickGroups[i];
+      if (i === tickGroups.length - 1) {
+        continue;
+      }
+      if (tickGroup.ticks.length > (this.props.scale.dy / this.PIXELS_BETWEEN_HASHES)) {
+        tickGroup.dontDrawHashes = true;
+      }
+    }
+    this.y = this.hashLengthForRow(_.last(tickGroups).row);
+    for (l = 0, len2 = tickGroups.length; l < len2; l++) {
+      tickGroup = tickGroups[l];
+      ticks = tickGroup.ticks, grain = tickGroup.grain, row = tickGroup.row;
+      for (m = 0, len3 = ticks.length; m < len3; m++) {
+        tick = ticks[m];
+        $.extend(tick, {
+          row: row,
+          grain: grain
+        });
+        tick.key = this.formatKeyForTick(tick);
+      }
+    }
+
+    /*
+    Figure out the truncationIndex for each group.  This is the level to which
+    their label needs to be abbreviated (like "January" --> "Jan" --> "J" --> "").  All ticks in a
+    group  will be truncated to the same level of abbreviation, for example... if September needs to be written as
+    just "Sep", but "March" can fit fine as it is, we still chop down "March" to "Mar" for consistency.)
+     */
+    for (o = 0, len4 = tickGroups.length; o < len4; o++) {
+      tickGroup = tickGroups[o];
+      row = tickGroup.row, numRows = tickGroup.numRows, ticks = tickGroup.ticks;
+      dontDrawGroup = function() {
+        return tickGroup.dontDrawLabels = true;
+      };
+      maxWidth = this.props.scale.dy / ticks.length;
+      truncateIndex = largestTruncation = 0;
+      widthOfLargest = 0;
+      if (maxWidth < 3 && !this.isOutermostGroup(tickGroup)) {
+        dontDrawGroup();
+        continue;
+      }
+      fontSize = this.FONT_LARGEST_TIME_AXIS;
+      fontRatio = fontSize / 12;
+      for (tickIndex = p = 0, len5 = ticks.length; p < len5; tickIndex = ++p) {
+        tick = ticks[tickIndex];
+        if (row === numRows) {
+          text = this.formatTimeAxisLabel(tick, 0);
+          textWidth = fontRatio * this.getTextMetrics(text, fontSize).lines[0].width;
+        } else {
+          text = this.formatTimeAxisLabel(tick, truncateIndex);
+          while ((textWidth = fontRatio * this.getTextMetrics(text, fontSize).lines[0].width) > (maxWidth * .7)) {
+            truncateIndex++;
+            text = this.formatTimeAxisLabel(tick, truncateIndex);
+          }
+        }
+        if (textWidth > widthOfLargest) {
+          widthOfLargest = textWidth;
+        }
+        if (truncateIndex > largestTruncation) {
+          largestTruncation = truncateIndex;
+        }
+      }
+      if (widthOfLargest === 0) {
+        dontDrawGroup();
+      } else {
+        tickGroup.truncateIndex = largestTruncation;
+        tickGroup.widthOfLargest = widthOfLargest;
+      }
+    }
+    while (tickGroups[0].dontDrawLabels && tickGroups[0].dontDrawHashes) {
+      tickGroups.splice(0, 1);
+    }
+    tickGroups = tickGroups.slice(0, 3);
+    for (i = q = 0, len6 = tickGroups.length; q < len6; i = ++q) {
+      tickGroup = tickGroups[i];
+      row = i + 1;
+      numRows = tickGroups.length;
+      tickGroup.row = row;
+      tickGroup.numRows = numRows;
+      ref1 = tickGroup.ticks;
+      for (r = 0, len7 = ref1.length; r < len7; r++) {
+        tick = ref1[r];
+        tick.row = row;
+        tick.numRows = numRows;
+      }
+    }
+    innerTicksToDraw = [];
+    for (groupIndex = s = 0, len8 = tickGroups.length; s < len8; groupIndex = ++s) {
+      tickGroup = tickGroups[groupIndex];
+      ticks = tickGroup.ticks, row = tickGroup.row, numRows = tickGroup.numRows, truncateIndex = tickGroup.truncateIndex, grain = tickGroup.grain, dontDrawLabels = tickGroup.dontDrawLabels;
+      if (dontDrawLabels || (groupIndex === tickGroups.length - 1)) {
+        continue;
+      }
+      fontSize = this.getFontSize(row, numRows);
+      for (tickIndex = t = 0, len9 = ticks.length; t < len9; tickIndex = ++t) {
+        tick = ticks[tickIndex];
+        date = tick.date;
+        text = this.formatTimeAxisLabel(tick, truncateIndex);
+        if (!text) {
+          continue;
+        }
+        textWidth = this.getTextMetrics(text, fontSize).lines[0].width;
+        $.extend(tick, {
+          text: text,
+          fontSize: fontSize,
+          width: textWidth
+        });
+        tick = this.formatTickLayout(tick);
+        if (tick.x + textWidth > this.props.scale.dy) {
+          continue;
+        }
+        innerTicksToDraw.push(tick);
+      }
+    }
+    hashByKey = {};
+    i = tickGroups.length;
+    while (i > 0) {
+      tickGroup = tickGroups[i - 1];
+      if (tickGroup.dontDrawHashes || i === tickGroups.length) {
+        i--;
+        continue;
+      }
+      ref2 = tickGroup.ticks;
+      for (tickIndex = u = 0, len10 = ref2.length; u < len10; tickIndex = ++u) {
+        tick = ref2[tickIndex];
+        this.addHashMarkFromTick(tick, hashByKey, this.props.scale, false);
+      }
+      i--;
+    }
+    outerMostTickGroup = _.last(tickGroups);
+    n = 1;
+    while (outerMostTickGroup.widthOfLargest * (outerMostTickGroup.ticks.length / n) > this.props.scale.dy * .7) {
+      n++;
+    }
+    numberSkippedInARow = 0;
+    outerTicksToDraw = [];
+    row = outerMostTickGroup.row, grain = outerMostTickGroup.grain;
+    fontSize = this.getFontSize(row, tickGroups.length);
+    fontRatio = fontSize / 12;
+    ref3 = outerMostTickGroup.ticks;
+    for (index = v = 0, len11 = ref3.length; v < len11; index = ++v) {
+      tick = ref3[index];
+      if (numberSkippedInARow < n && n !== 1 && index !== 0) {
+        numberSkippedInARow++;
+      } else {
+        numberSkippedInARow = 0;
+        this.addHashMarkFromTick(tick, hashByKey, this.props.scale, true);
+        text = this.formatTimeAxisLabel(tick, outerMostTickGroup.truncateIndex);
+        textWidth = fontRatio * this.getTextMetrics(text, fontSize).lines[0].width;
+        tick = this.formatTickLayout(tick);
+        $.extend(tick, {
+          text: text,
+          fontSize: fontSize
+        });
+        if (tick.x + textWidth > this.props.scale.dy) {
+          continue;
+        }
+        tick.width = textWidth;
+        outerTicksToDraw.push(tick);
+      }
+    }
+    axisHashes = (function() {
+      var results;
+      results = [];
+      for (epoch in hashByKey) {
+        hash = hashByKey[epoch];
+        results.push(this.formatHashMarkLayout(hash));
+      }
+      return results;
+    }).call(this);
+    axisLabels = axisLabels.concat(outerTicksToDraw).concat(innerTicksToDraw);
     return {
-      timeFormat: timeFormat,
-      timeLabel: timeLabel
+      axisHashes: axisHashes,
+      axisLabels: axisLabels
     };
   },
-  labelForTick: function(epoch) {
-    var time;
-    time = moment(epoch).format(this.state.timeFormat);
-    return "" + time + this.state.timeLabel;
+  allTicksOnAxisForGrain: function(grain, timeScale) {
+    var domain, endDate, endEpoch, increment, isOneMonth, isOneYear, newTickDate, numTicks, ref, startDate, startEpoch, ticks;
+    domain = timeScale.domain;
+    startEpoch = domain[0], endEpoch = domain[1];
+    ref = [new Date(domain[0]), new Date(domain[1])], startDate = ref[0], endDate = ref[1];
+    ticks = [];
+    increment = (function() {
+      switch (grain) {
+        case "hour":
+          if (startDate.getSeconds() !== 0) {
+            startDate.setHours(startDate.getHours() + 1);
+            startDate.setSeconds(0);
+          }
+          return (function(_this) {
+            return function(tickDate) {
+              return tickDate.setHours(tickDate.getHours() + 1);
+            };
+          })(this);
+        case "day":
+          return (function(_this) {
+            return function(tickDate) {
+              return tickDate.setDate(tickDate.getDate() + 1);
+            };
+          })(this);
+        case "month":
+          isOneMonth = startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear();
+          if (startDate.getDate() > 15 && !isOneMonth) {
+            startDate.setMonth(startDate.getMonth() + 1);
+            startDate.setDate(1);
+          }
+          return (function(_this) {
+            return function(tickDate) {
+              tickDate.setMonth(tickDate.getMonth() + 1);
+              return tickDate.setDate(1);
+            };
+          })(this);
+        case "year":
+          isOneYear = startDate.getFullYear() === endDate.getFullYear();
+          if (!isOneYear && endDate.getMonth() !== 0) {
+            startDate.setFullYear(startDate.getFullYear() + 1);
+            startDate.setMonth(0);
+            startDate.setDate(1);
+          }
+          return (function(_this) {
+            return function(tickDate) {
+              tickDate.setFullYear(tickDate.getFullYear() + 1);
+              tickDate.setMonth(0);
+              return tickDate.setDate(1);
+            };
+          })(this);
+        default:
+          break;
+      }
+    }).call(this);
+    numTicks = 0;
+    while (startDate.getTime() <= endEpoch) {
+      newTickDate = new Date(startDate.getTime());
+      ticks.push({
+        date: newTickDate,
+        grain: grain
+      });
+      numTicks++;
+      if (numTicks >= 500) {
+        return false;
+      }
+      increment(startDate);
+    }
+    return ticks;
+  },
+  isOutermostGroup: function(tickGroup) {
+    return tickGroup.row === tickGroup.numRows;
+  },
+  getFontSize: function(row, numRows) {
+    if (row === numRows) {
+      return this.FONT_LARGEST_TIME_AXIS;
+    } else if (row === 1) {
+      return this.FONT_LARGEST_TIME_AXIS - 4;
+    } else if (row === 2) {
+      return this.FONT_LARGEST_TIME_AXIS - 3;
+    } else {
+      return this.FONT_LARGEST_TIME_AXIS;
+    }
+  },
+  hashLengthForRow: function(row) {
+    return this.SMALLEST_HASH_MARK * row;
+  },
+  getX: function(shape, timeScale) {
+    var centerInPixels, date, epoch, grain, isLabel, middleEpoch, numRows, row, width;
+    if (timeScale == null) {
+      timeScale = this.props.scale;
+    }
+    isLabel = this.typeOfShapeFromKey(shape.key) === 'tick';
+    if (isLabel) {
+      row = shape.row, numRows = shape.numRows, date = shape.date, grain = shape.grain, width = shape.width;
+      epoch = date.getTime();
+      if (row === numRows) {
+        return timeScale.map(epoch) + 5;
+      } else {
+        middleEpoch = DateUtils.midPointOfGrain(date, grain).getTime();
+        centerInPixels = timeScale.map(middleEpoch);
+        return centerInPixels - width / 2;
+      }
+    } else {
+      epoch = shape.date.getTime();
+      return timeScale.map(epoch);
+    }
+  },
+  typeOfShapeFromKey: function(key) {
+    var parts;
+    parts = key.split(this.KEY_DIVIDER);
+    return parts[0];
+  },
+  addHashMarkFromTick: function(tick, hashMap, timeScale, shouldOverride) {
+    var epoch, hashKey, tickHash;
+    if (shouldOverride == null) {
+      shouldOverride = false;
+    }
+    tickHash = $.extend({}, tick);
+    epoch = tick.date.getTime();
+    hashKey = this.formatKeyForHashMark(tickHash);
+    if (!shouldOverride && hashMap[epoch]) {
+      return;
+    }
+    hashMap[epoch] = tickHash;
+    tickHash.key = hashKey;
+    return tickHash.x = timeScale.map(tickHash.date.getTime());
+  },
+  formatTickLayout: function(tick) {
+    return $.extend(tick, {
+      y: this.hashLengthForRow(tick.row) - 13,
+      x: this.getX(tick)
+    });
+  },
+  formatHashMarkLayout: function(tickHash) {
+    var x;
+    x = this.getX(tickHash);
+    return $.extend(tickHash, {
+      x: x,
+      y0: 0,
+      y1: this.hashLengthForRow(tickHash.row)
+    });
+  },
+  getTextMetrics: function(text, fontSize) {
+    return measureText(text, 200, this.FONT_FACE, fontSize, fontSize);
+  },
+
+  /*
+  This formats the labels on the time line axis
+  arguments:
+    tick:
+      Info for the mark on the time axis (the date, the scale -- like "year")
+    truncateIndex:
+      How much we need to abbreviate the text by (its an integer)
+   */
+  formatTimeAxisLabel: function(tick, truncateIndex) {
+    var date, dateObj, day, getDay, getHour, getMonth, grain, isFirstTick, month, numRows, ref, row, val, week, year;
+    if (truncateIndex == null) {
+      truncateIndex = 0;
+    }
+    date = tick.date, grain = tick.grain, row = tick.row, numRows = tick.numRows, isFirstTick = tick.isFirstTick;
+    ref = dateObj = DateUtils.timeToDateObj(date.getTime()), year = ref.year, month = ref.month, week = ref.week, day = ref.day;
+    getMonth = function() {
+      var standardMonth;
+      standardMonth = DateUtils.MONTH_INFOS[month].name;
+      switch (truncateIndex) {
+        case 0:
+          return DateUtils.MONTH_INFOS[month].longName;
+        case 1:
+          return standardMonth;
+        case 2:
+          return standardMonth[0];
+        default:
+          if (row === numRows) {
+            return standardMonth[0];
+          } else {
+            return "";
+          }
+      }
+    };
+    getDay = function() {
+      switch (truncateIndex) {
+        case 0:
+          return moment(date).format("Do");
+        case 1:
+          return dateObj[grain];
+        default:
+          return "";
+      }
+    };
+    getHour = function() {
+      switch (truncateIndex) {
+        case 0:
+          return dateObj[grain] + 'hr';
+        case 1:
+          return dateObj[grain];
+        default:
+          return "";
+      }
+    };
+    val = (function() {
+      switch (grain) {
+        case "month":
+          return getMonth();
+        case "day":
+          return getDay();
+        case "hour":
+          return getHour();
+        default:
+          switch (truncateIndex) {
+            case 0:
+              return dateObj[grain];
+            default:
+              if (row === numRows) {
+                return dateObj[grain];
+              } else {
+                return "";
+              }
+          }
+      }
+    })();
+    return val.toString();
+  },
+  formatKeyForTick: function(tick) {
+    return ["tick", tick.grain, "" + (tick.date.getTime())].join(this.KEY_DIVIDER);
+  },
+  formatKeyForHashMark: function(hash) {
+    return ["hash", hash.grain, "" + (hash.date.getTime())].join(this.KEY_DIVIDER);
   }
 });
 
 module.exports = TimeAxis;
 
 
-},{"./Axis.cjsx":4}]},{},[1]);
+},{"../util/DateUtils.coffee":2,"./Axis.cjsx":5}]},{},[1]);
