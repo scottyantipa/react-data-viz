@@ -26,12 +26,12 @@ TimeSeriesChart = React.createClass
     timeScale =
       new LinearScale
         domain: [startTime, endTime]
-        range:  [0, 500]
+        range:  [0, 800]
 
     temperatureScale =
       new LinearScale
         domain: @state.tempRange
-        range:  [0, 500]
+        range:  [0, 400]
 
     origin =
       x: @axisThickness
@@ -144,6 +144,11 @@ TimeSeriesChart = React.createClass
     <div className = 'time-range-options'>
       <span>Time Range</span>
       <button
+        onClick = {=> @setState timeRange: @oneDay()}
+      >
+        1 day
+      </button>
+      <button
         onClick = {=> @setState timeRange: @oneMonth()}
       >
         1 month
@@ -170,6 +175,11 @@ TimeSeriesChart = React.createClass
       </button>
     </div>
 
+  oneDay: ->
+    [
+      new Date(2011, 1, 1).getTime()
+      new Date(2011, 1, 2).getTime()
+    ]
   oneMonth: ->
     [
       new Date(2011, 1, 1).getTime()

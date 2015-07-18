@@ -10,114 +10,40 @@ DateUtils =
     halfDiff = (nextDate.getTime() - date.getTime()) / 2
     new Date(date.getTime() + halfDiff)
 
-
   timeToDateObj: (time) ->
     date = new Date time
     if isNaN(date.getTime()) then return false
 
     year: date.getFullYear()
-    quarter: @getQuarter(date.getMonth() + 1)
     month: date.getMonth()
     week: 4 * (date.getMonth()) + (Math.floor(date.getDate() / 7) + 1)
     day: date.getDate()
+    hour: date.getHours()
 
 
   # i.e. January will return the first day of Feb, or 2008 will return first
   # day of 2009
   dateOfNextScale: (date, grain) ->
+    d = new Date date.getTime()
     switch grain
+      when "hour"
+        d.setHours d.getHours() + 1
+        d.setMinutes 0
       when "day"
-        new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
-      when "month"
-        new Date(date.getFullYear(), date.getMonth() + 1, 1)
-      when "quarter"
-        new Date(date.getFullYear(), date.getMonth() + 3, date.getDate())
-      when "year"
-        new Date(date.getFullYear() + 1, 0, 1)
+        d.setDate d.getDate() + 1
+        d.setHours 0
       when "week"
-        new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7)
-      else
-        null
-
-  dateOfPreviousScale: (date, grain) ->
-    switch grain
-      when "day"
-        new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1)
+        d.setDate d.getDate() + 7
       when "month"
-        new Date(date.getFullYear(), date.getMonth() - 1, date.getDate())
-      when "quarter"
-        new Date(date.getFullYear(), date.getMonth() - 3, date.getDate())
+        d.setMonth d.getMonth() + 1
+        d.setDate 1
       when "year"
-        new Date(date.getFullYear() - 1, 0, 1)
-      when "week"
-        new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7)
+        d.setYear d.getFullYear() + 1
+        d.setMonth 0
       else
         null
+    d
 
-
-  # For a given grain return the first day (i.e 2008/4/2 for grain "year"
-  # will return a new date for 2008/1/1)
-  firstDateInGrain: (date, grain) ->
-    switch grain
-      when "year"
-        new Date(date.getFullYear(), 0, 1)
-      when "quarter"
-        firstMonths = @FIRST_MONTH_OF_QUARTERS # [0, 3, 6, 9]
-        currentMonth = date.getMonth()
-        while currentMonth not in firstMonths and currentMonth > 0
-          currentMonth--
-        new Date(date.getFullYear(), currentMonth, 1)
-      when "month"
-        new Date(date.getFullYear(), date.getMonth(), 1)
-      when "day"
-        new Date date.getFullYear(), date.getMonth(), date.getDate()
-      else
-        null
-
-  # For a given grain return the last day (i.e 2008/4/2 for grain "year"
-  # will return a new date for 2008/12/31)
-  lastDateInGrain: (date, grain) ->
-    switch grain
-      when "year"
-        new Date(date.getFullYear(), 11, 31)
-      when "quarter"
-        lastMonths = @LAST_MONTH_OF_QUARTERS # [2, 5, 8, 11]
-        currentMonth = date.getMonth()
-        while currentMonth not in lastMonths and currentMonth < 11
-          currentMonth++
-        daysInMonth = @NUM_DAYS_EACH_MONTH[currentMonth] or @getFebDays(currentMonth)
-        new Date(date.getFullYear(), currentMonth, daysInMonth)
-      when "month"
-        nextMonth = @dateOfNextScale date, grain
-        new Date(nextMonth.getFullYear(), nextMonth.getMonth(), nextMonth.getDate())
-      when "day"
-        copy = new Date date.getFullYear(), date.getMonth(), date.getDate()
-        copy.setDate copy.getDate() + 1
-        copy
-      else
-        null
-
-  nearestWholeDate: (date, grain) ->
-    previous = @firstDateInGrain date, grain
-    next = @lastDateInGrain date, grain
-    diffToPrevious = date.getTime() - previous.getTime()
-    diffToNext = next.getTime() - date.getTime()
-    if diffToPrevious > diffToNext
-      next
-    else
-      previous
-
-  getQuarter: (month) ->
-    return false if not @isValidMonth(month)
-    Math.floor(month/3) + 1
-
-  firstMonthOfQrt: (quarter) ->
-    return false if not @isValidQuarter(quarter)
-    quarter * 3 - 3
-
-  lastMonthOfQrt: (quarter) ->
-    return false if not @isValidQuarter(quarter)
-    quarter * 3 - 1
 
   getFebDays: (year) ->
     return false if not @isValidYear(year)
@@ -129,17 +55,11 @@ DateUtils =
       mnth = dateObj.getMonth()
     i - 1
 
-
-  isValidQuarter: (quarter) ->
-    [1,2,3,4, "1", "2", "3", "4"].indexOf(quarter) isnt -1
-
   isValidMonth: (month) ->
     _.isNumber(month) and [0..11].indexOf(month) isnt -1
 
   isValidYear: (year) ->
     _.isNumber(year) and year.toString().length is 4
-
-  FIRST_MONTH_OF_QUARTERS: [0, 3, 6, 9]
 
 
   DATE_GRAIN_INFO:
@@ -162,10 +82,6 @@ DateUtils =
     month:
       name: "month"
       index: 5
-      numMilSeconds: null
-    quarter:
-      name: "quarter"
-      index: 6
       numMilSeconds: null
     year:
       name: "year"
