@@ -16,7 +16,7 @@ TimeAxis = React.createClass
 
   POSSIBLE_GRAINS: ["hour", "day" ,"month","year"]
 
-  PIXELS_BETWEEN_HASHES:   12 # minimal padding between every vert line in the time axis
+  PIXELS_BETWEEN_HASHES:  12 # minimal padding between every vert line in the time axis
   SMALLEST_HASH_MARK:     15 # shortest length of vert lines in time axis
   FONT_LARGEST_TIME_AXIS: 13
 
@@ -96,8 +96,7 @@ TimeAxis = React.createClass
     for grain, row in @POSSIBLE_GRAINS
       ticks = @allTicksOnAxisForGrain grain, @props.scale
       continue if not ticks
-      row = row + 1 # so that the rows start at 1, rather than 0
-      group = {ticks, grain, row, numRows}
+      group = {ticks, grain}
       tickGroups.push group
 
     ###
@@ -115,15 +114,13 @@ TimeAxis = React.createClass
         tickGroup.dontDrawHashes = true
 
     # @y is the total height of the time axis
+    # TODO: Store in state, not as instance var
     @y = @hashLengthForRow _.last(tickGroups).row
 
     for tickGroup in tickGroups
       {ticks, grain, row} = tickGroup
       for tick in ticks
-        $.extend tick, {
-          row,
-          grain
-        }
+        tick.grain = grain
         tick.key = @formatKeyForTick tick
 
     ###
@@ -132,8 +129,8 @@ TimeAxis = React.createClass
     group  will be truncated to the same level of abbreviation, for example... if September needs to be written as
     just "Sep", but "March" can fit fine as it is, we still chop down "March" to "Mar" for consistency.)
     ###
-    for tickGroup in tickGroups
-      {row, numRows, ticks} = tickGroup
+    for tickGroup, tickIndex in tickGroups
+      {ticks} = tickGroup
 
       dontDrawGroup = ->
         tickGroup.dontDrawLabels = true
@@ -142,7 +139,7 @@ TimeAxis = React.createClass
       truncateIndex = largestTruncation = 0 # the level to which we will abreviate each lable in group
       widthOfLargest = 0
 
-      if maxWidth < 3 and not @isOutermostGroup(tickGroup) # cant draw a label in 2 pix
+      if maxWidth < 10 # dont draw a label in less than 10px width
         dontDrawGroup()
         continue
 
@@ -151,7 +148,7 @@ TimeAxis = React.createClass
       fontSize = @FONT_LARGEST_TIME_AXIS # we dont yet know, so be conservative
       fontRatio = fontSize / 12 # standard size
       for tick, tickIndex in ticks
-        if row is numRows # never truncate the outermost row
+        if tickIndex is @POSSIBLE_GRAINS.length # At least the outermost row must not be truncated
           text = @formatTimeAxisLabel tick, 0
           textWidth = fontRatio * @getTextMetrics(text, fontSize).lines[0].width
         else
@@ -309,8 +306,6 @@ TimeAxis = React.createClass
       increment startDate
     ticks
 
-  isOutermostGroup: (tickGroup) ->
-    tickGroup.row is tickGroup.numRows
 
   #--------------------------------------------------------------------------------
   # Styling
