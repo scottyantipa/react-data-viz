@@ -144,6 +144,11 @@ TimeSeriesChart = React.createClass
     <div className = 'time-range-options'>
       <span>Time Range</span>
       <button
+        onClick = {=> @setState timeRange: @oneMonth()}
+      >
+        1 month
+      </button>
+      <button
         onClick = {=> @setState timeRange: @sixMonths()}
       >
         6 months
@@ -164,6 +169,12 @@ TimeSeriesChart = React.createClass
         200 years
       </button>
     </div>
+
+  oneMonth: ->
+    [
+      new Date(2011, 1, 1).getTime()
+      new Date(2011, 2, 1).getTime()
+    ]
   sixMonths: ->
     [
       new Date(2011, 1, 1).getTime()

@@ -6,26 +6,34 @@ Group,
 Text,
 FontFace} = ReactCanvas
 
+###
+Renders a time axis with multiple levels of granularity.  For example,
+If days are the smallest grain we can show, it will also render months and years.
+"Ticks" denote a position on the axis.  A "Hash" is a vertical line marking the axis.
+###
 TimeAxis = React.createClass
-  PIXELS_BETWEEN_TICKS: 12 # minimal padding between every vert line in the time axis
-  SMALLEST_HASH_MARK: 14 # shortest length of vert lines in time axis
-  FONT_LARGEST_TIME_AXIS: 14
+  displayName: 'TimeAxis'
+
+  PIXELS_BETWEEN_TICKS:   12 # minimal padding between every vert line in the time axis
+  SMALLEST_HASH_MARK:     15 # shortest length of vert lines in time axis
+  FONT_LARGEST_TIME_AXIS: 13
+
   FONT_FACE: FontFace.Default(600)
   KEY_DIVIDER: "::"
 
   render: ->
+    {axisLabels, axisHashes} = @calcShapes()
+
+    <Group>
+      {@renderLabels axisLabels}
+      {@renderHashes axisHashes}
+      {@renderAxisLine()}
+    </Group>
+
+
+  renderLabels: (labels) ->
     {origin} = @props
-
-    {axisLabels, axisTicks} = @calcShapes()
-
-
-    axisFrame =
-      x0: origin.x
-      y0: origin.y
-      x1: origin.x + @props.scale.range[1]
-      y1: origin.y
-
-    labels = _.map axisLabels, (label, index) =>
+    _.map labels, (label, index) =>
       {x, y, text, fontSize, width} = label
       baseTextStyle = _.clone @props.textStyle
       style = _.extend baseTextStyle,
@@ -41,8 +49,10 @@ TimeAxis = React.createClass
         {text}
       </Text>
 
-    hashes = _.map axisTicks, (tick, index) =>
-      {x, y0, y1}  = tick
+  renderHashes: (hash) ->
+    {origin} = @props
+    _.map hash, (hash, index) =>
+      {x, y0, y1}  = hash
       x += origin.x
       frame =
         x0: x
@@ -58,21 +68,20 @@ TimeAxis = React.createClass
         frame = frame
       />
 
-    <Group>
 
-      {labels}
+  renderAxisLine: ->
+    {x,y} = @props.origin
 
-      {hashes}
+    axisFrame =
+      x0: x
+      y0: y
+      x1: x + @props.scale.range[1]
+      y1: y
 
-      <Line
-        frame = axisFrame
-        style = @props.axisLineStyle
-      />
-
-    </Group>
-
-
-  displayName: 'TimeAxis'
+    <Line
+      frame = axisFrame
+      style = @props.axisLineStyle
+    />
 
   componentWillReceiveProps: (newProps) ->
     return if _.isEqual newProps.scale, @props.scale
@@ -111,7 +120,7 @@ TimeAxis = React.createClass
     grainsToDraw = ["day" ,"month","year"] # static for now
     numRows = grainsToDraw.length
     axisLabels = [] # all the labels on the axis
-    axisTicks = [] # all the vert lines on the axis
+    axisHashes = [] # all the vert lines on the axis
 
     # Calc basic rows of the axis (year, month, day rows)
     tickGroups = []
@@ -139,7 +148,7 @@ TimeAxis = React.createClass
           otherTickGroup.numRows--
 
     # @y is the total height of the time axis
-    @y = @getY _.last(tickGroups).row
+    @y = @hashLengthForRow _.last(tickGroups).row
 
     for tickGroup in tickGroups
       {ticks, grain, row, numRows} = tickGroup
@@ -147,7 +156,7 @@ TimeAxis = React.createClass
         $.extend tick, {row, numRows, grain}
         tick.key = @formatKeyForTick tick
 
-    hashByKey = {} # will eventually be added to axisTicks
+    hashByKey = {} # will eventually be added to axisHashes
     i = tickGroups.length
     while i > 0
       tickGroup = tickGroups[i - 1]
@@ -188,7 +197,7 @@ TimeAxis = React.createClass
           textWidth = fontRatio * @getTextMetrics(text, fontSize).lines[0].width
         else
           text = @formatTimeAxisLabel tick, truncateIndex
-          while (textWidth = fontRatio * @getTextMetrics(text, fontSize).lines[0].width) > (maxWidth * .7)
+          while (textWidth = fontRatio * @getTextMetrics(text, fontSize).lines[0].width) > (maxWidth * .5)
             truncateIndex++
             text = @formatTimeAxisLabel tick, truncateIndex
         if textWidth > widthOfLargest then widthOfLargest = textWidth
@@ -249,9 +258,9 @@ TimeAxis = React.createClass
         outerTicksToDraw.push tick
 
     # push in our shapes
-    axisTicks = (@formatHashMarkLayout(hash) for epoch, hash of hashByKey) # the vert lines
+    axisHashes = (@formatHashMarkLayout(hash) for epoch, hash of hashByKey) # the vert lines
     axisLabels = axisLabels.concat(outerTicksToDraw).concat(innerTicksToDraw)
-    {axisTicks, axisLabels}
+    {axisHashes, axisLabels}
 
 
   # Given a time range, produces a sequence of tick marks at incrementing dates.
@@ -322,19 +331,15 @@ TimeAxis = React.createClass
     if row is numRows
       @FONT_LARGEST_TIME_AXIS
     else if row is 1
-      @FONT_LARGEST_TIME_AXIS - 3
+      @FONT_LARGEST_TIME_AXIS - 4
     else if row is 2
-      @FONT_LARGEST_TIME_AXIS - 2
+      @FONT_LARGEST_TIME_AXIS - 3
     else
       @FONT_LARGEST_TIME_AXIS
 
   # The Y length of a hash mark
-  getY: (shape) ->
-    {row} = shape
-    if row is 1
-      @SMALLEST_HASH_MARK
-    else
-      @SMALLEST_HASH_MARK * row + 2
+  hashLengthForRow: (row) ->
+    @SMALLEST_HASH_MARK * row
 
   getX: (shape, timeScale = @props.scale) ->
     isLabel = @typeOfShapeFromKey(shape.key) is 'tick'
@@ -369,13 +374,10 @@ TimeAxis = React.createClass
     tickHash.key = hashKey
     tickHash.x = timeScale.map tickHash.date.getTime()
 
-  # Formats positions for labels
   formatTickLayout: (tick) ->
     $.extend tick,
-      y: @getY tick
+      y: @hashLengthForRow(tick.row) - 13 # kind of hacky to hard code this offset
       x: @getX tick
-    tick
-
 
   # Formats positions for the vert lines on the time axis
   formatHashMarkLayout: (tickHash) ->
@@ -383,8 +385,7 @@ TimeAxis = React.createClass
     $.extend tickHash,
       x: x
       y0: 0
-      y1: @getY tickHash
-    tickHash
+      y1: @hashLengthForRow tickHash.row
 
   # ----------------------------------------------
   # Text measuring, abbreviation, etc.
