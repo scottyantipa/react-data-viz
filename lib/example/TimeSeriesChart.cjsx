@@ -164,25 +164,22 @@ TimeSeriesChart = React.createClass
   #
   # Utils for setting various time ranges
   #
+
+  # All date ranges will start here
   baseDate: -> new Date 2011, 1, 1
   initRange: -> [@baseDate(), @baseDate()]
+
   incrementDateBy:
-    halfHour: (date) ->
-      date.setMinutes date.getMinutes() + 30
-    oneHour: (date) ->
-      date.setHours date.getHours() + 1
-    oneDay: (date) ->
-      date.setDate date.getDate() + 1
-    oneMonth: (date) ->
-      date.setMonth date.getMonth() + 1
-    sixMonths: (date) ->
-      date.setMonth date.getMonth() + 6
-    twoYears: (date) ->
-      date.setYear date.getFullYear() + 2
-    tenYears: (date) ->
-      date.setYear date.getFullYear() + 10
-    twoHundredYears: (date) ->
-      date.setYear date.getFullYear() + 200
+    tenSeconds     : (date) -> date.setSeconds date.getSeconds() + 10
+    oneMinute      : (date) -> date.setMinutes date.getMinutes() + 1
+    halfHour       : (date) -> date.setMinutes date.getMinutes() + 30
+    oneHour        : (date) -> date.setHours date.getHours() + 1
+    oneDay         : (date) -> date.setDate date.getDate() + 1
+    oneMonth       : (date) -> date.setMonth date.getMonth() + 1
+    sixMonths      : (date) -> date.setMonth date.getMonth() + 6
+    twoYears       : (date) -> date.setYear date.getFullYear() + 2
+    tenYears       : (date) -> date.setYear date.getFullYear() + 10
+    twoHundredYears: (date) -> date.setYear date.getFullYear() + 200
 
   generateData: (timeScale) ->
     tempDelta = @state.tempRange[1] - @state.tempRange[0]

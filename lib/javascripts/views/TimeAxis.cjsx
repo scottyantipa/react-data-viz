@@ -14,7 +14,7 @@ If days are the smallest grain we can show, it will also render months and years
 TimeAxis = React.createClass
   displayName: 'TimeAxis'
 
-  POSSIBLE_GRAINS: ["minute", "hour", "day" ,"month","year"]
+  POSSIBLE_GRAINS: ["second", "minute", "hour", "day" ,"month","year"]
 
   PIXELS_BETWEEN_HASHES:  12 # minimal padding between every vert line in the time axis
   SMALLEST_HASH_MARK:     15 # shortest length of vert lines in time axis
@@ -94,7 +94,7 @@ TimeAxis = React.createClass
     # Calc basic rows of the axis (year, month, day rows)
     tickGroups = []
     for grain, row in @POSSIBLE_GRAINS
-      ticks = @allTicksOnAxisForGrain grain, @props.scale
+      ticks = @ticksForGrain grain, @props.scale
       continue if not ticks
       group = {ticks, grain}
       tickGroups.push group
@@ -249,68 +249,27 @@ TimeAxis = React.createClass
   # Given a time range, produces a sequence of tick marks at incrementing dates.
   # It only does it for one grain at a time (i.e. "year"). So if you want to show multiple
   # grains, run this function for each grain.
-  allTicksOnAxisForGrain: (grain, timeScale) ->
+  ticksForGrain: (grain, timeScale) ->
     {domain} = timeScale
-    [ startEpoch, endEpoch ] = domain
-    [ startDate, endDate ] = [ new Date(domain[0]), new Date(domain[1]) ]
+    [startEpoch, endEpoch] = domain
 
+    # We will increment this date until we have created ticks for the whole range
+    pointer = DateUtils.roundDateToGrain new Date(startEpoch), grain
+    incrementer = DateUtils.incrementerForGrain[grain]
     ticks = [] # the array to populate with all of the time axis tick marks
-    increment = # a function that increments a single date grain
-      switch grain
-
-        when "minute"
-          if startDate.getMilliseconds() isnt 0
-            startDate.setMinutes startDate.getMinutes() + 1
-            startDate.setMilliseconds 0
-          (tickDate) =>
-            tickDate.setMinutes tickDate.getMinutes() + 1
-
-        when "hour"
-          if startDate.getSeconds() isnt 0
-            startDate.setHours startDate.getHours() + 1
-            startDate.setSeconds 0
-          (tickDate) =>
-            tickDate.setHours tickDate.getHours() + 1
-
-        when "day"
-          (tickDate) =>
-            tickDate.setDate tickDate.getDate() + 1
-
-        when "month"
-          # start with the first full month, unless we have less than a month of data
-          isOneMonth = startDate.getMonth() is endDate.getMonth() and startDate.getFullYear() is endDate.getFullYear()
-          if startDate.getDate() > 15 and not isOneMonth
-            startDate.setMonth startDate.getMonth() + 1
-            startDate.setDate 1
-          (tickDate) =>
-            tickDate.setMonth tickDate.getMonth() + 1
-            tickDate.setDate 1
-
-        when "year"
-          # start with the first full year, unless we have one year of data
-          isOneYear = startDate.getFullYear() is endDate.getFullYear()
-          if not isOneYear and endDate.getMonth() isnt 0 # jan
-            startDate.setFullYear startDate.getFullYear() + 1
-            startDate.setMonth 0
-            startDate.setDate 1
-          (tickDate) =>
-            tickDate.setFullYear tickDate.getFullYear() + 1
-            tickDate.setMonth 0 # safegaurd, always want first month of year
-            tickDate.setDate 1
-        else
-          break
-
-    # Pushes each consecutive grain into an array (Jan, Feb, March...)
     numTicks = 0
-    while startDate.getTime() <= endEpoch
-      newTickDate = new Date(startDate.getTime()) # create a new one to store because we increment the original
-      ticks.push
-        date: newTickDate
-        grain: grain
+    while (time = pointer.getTime()) <= endEpoch
+      if time < startEpoch
+        incrementer pointer
+        continue
+      ticks.push {
+        date: new Date time
+        grain
+      }
+      incrementer pointer
       numTicks++
-      # Never a need to show 500 axis marks.  This enhances performance.
-      return false if numTicks >= 500
-      increment startDate
+      return false if numTicks >= 500 # Never a need to show 500 axis marks.  This enhances performance.
+
     ticks
 
 
@@ -383,13 +342,14 @@ TimeAxis = React.createClass
   # ----------------------------------------------
 
   getTextMetrics: (text, fontSize) ->
-      measureText(
-        text,
-        200, # default width.  Still not sure why this has to be passed
-        @FONT_FACE,
-        fontSize,
-        fontSize
-      )
+    measureText(
+      text,
+      200, # default width.  Still not sure why this has to be passed
+      @FONT_FACE,
+      fontSize,
+      fontSize
+    )
+
   ###
   This formats the labels on the time line axis
   arguments:
@@ -414,6 +374,15 @@ TimeAxis = React.createClass
     val.toString()
 
   formatLabelByGrain:
+    second: (truncateIndex, {second}) ->
+      switch truncateIndex
+        when 0
+          second + 's'
+        when 1
+          second
+        else
+          ""
+
     minute: (truncateIndex, {minute}) ->
       switch truncateIndex
         when 0
@@ -422,12 +391,12 @@ TimeAxis = React.createClass
           minute
         else
           ""
-    hour: (truncateIndex, {hour}) ->
+    hour: (truncateIndex, {date}) ->
       switch truncateIndex
         when 0
-          hour + 'h'
+          moment(date).format 'ha' # 7pm
         when 1
-          hour
+          moment(date).format 'h' # 7
         else
           ""
     day: (truncateIndex, {date}) -> # Takes a Date object for moment to use
