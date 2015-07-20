@@ -581,7 +581,8 @@ If days are the smallest grain we can show, it will also render months and years
 TimeAxis = React.createClass({
   displayName: 'TimeAxis',
   POSSIBLE_GRAINS: ["second", "minute", "hour", "day", "month", "year"],
-  PIXELS_BETWEEN_HASHES: 12,
+  PIXELS_BETWEEN_HASHES: 8,
+  LABEL_PADDING: 3,
   SMALLEST_HASH_MARK: 15,
   FONT_LARGEST_TIME_AXIS: 13,
   FONT_FACE: FontFace.Default(600),
@@ -627,7 +628,8 @@ TimeAxis = React.createClass({
           y1: origin.y + y1
         };
         style = _.extend(_this.props.axisLineStyle, {
-          opacity: .1
+          opacity: .5,
+          lineWidth: .5
         });
         return React.createElement(Line, {
           "style": style,
@@ -651,7 +653,7 @@ TimeAxis = React.createClass({
     });
   },
   calcShapes: function() {
-    var axisHashes, axisLabels, date, dontDrawGroup, dontDrawLabels, epoch, fontRatio, fontSize, grain, group, groupIndex, hash, hashByKey, i, index, innerTicksToDraw, j, k, l, largestTruncation, len, len1, len10, len11, len2, len3, len4, len5, len6, len7, len8, len9, m, maxWidth, n, numRows, numberSkippedInARow, o, outerMostTickGroup, outerTicksToDraw, p, q, r, ref, ref1, ref2, ref3, row, s, t, text, textWidth, tick, tickGroup, tickGroups, tickIndex, ticks, truncateIndex, u, v, widthOfLargest;
+    var axisHashes, axisLabels, date, epoch, fontRatio, fontSize, grain, group, groupIndex, groupsRemoved, hash, hashByKey, i, index, innerTicksToDraw, j, k, l, largest, largestTruncation, len, len1, len10, len11, len2, len3, len4, len5, len6, len7, len8, len9, m, maxWidth, n, numRows, numToSkip, numberSkippedInARow, o, outerMostTickGroup, outerTicksToDraw, p, q, r, ref, ref1, ref2, ref3, row, s, spacePerTick, t, text, textFitsInMaxSpace, textIsntCollapsed, textWidth, tick, tickGroup, tickGroups, tickIndex, ticks, truncateIndex, u, width, widthOfLargest;
     numRows = this.POSSIBLE_GRAINS.length;
     axisLabels = [];
     axisHashes = [];
@@ -696,78 +698,71 @@ TimeAxis = React.createClass({
     }
 
     /*
-    Figure out the truncationIndex for each group.  This is the level to which
+    Figure out the truncateIndex for each group.  This is the level to which
     their label needs to be abbreviated (like "January" --> "Jan" --> "J" --> "").  All ticks in a
     group  will be truncated to the same level of abbreviation, for example... if September needs to be written as
     just "Sep", but "March" can fit fine as it is, we still chop down "March" to "Mar" for consistency.)
      */
-    for (tickIndex = o = 0, len4 = tickGroups.length; o < len4; tickIndex = ++o) {
-      tickGroup = tickGroups[tickIndex];
+    for (groupIndex = n = 0, len4 = tickGroups.length; n < len4; groupIndex = ++n) {
+      tickGroup = tickGroups[groupIndex];
       ticks = tickGroup.ticks;
-      dontDrawGroup = function() {
-        return tickGroup.dontDrawLabels = true;
-      };
-      maxWidth = this.props.scale.dy / ticks.length;
-      truncateIndex = largestTruncation = 0;
-      widthOfLargest = 0;
+      spacePerTick = this.props.scale.dy / ticks.length;
+      maxWidth = spacePerTick - 2 * this.LABEL_PADDING;
       if (maxWidth < 10) {
-        dontDrawGroup();
-        continue;
+        tickGroup.labelsCannotFit = true;
       }
+      largestTruncation = 0;
+      widthOfLargest = 0;
       fontSize = this.FONT_LARGEST_TIME_AXIS;
-      fontRatio = fontSize / 12;
-      for (tickIndex = p = 0, len5 = ticks.length; p < len5; tickIndex = ++p) {
+      for (tickIndex = o = 0, len5 = ticks.length; o < len5; tickIndex = ++o) {
         tick = ticks[tickIndex];
-        if (tickIndex === this.POSSIBLE_GRAINS.length) {
-          text = this.formatTimeAxisLabel(tick, 0);
-          textWidth = fontRatio * this.getTextMetrics(text, fontSize).lines[0].width;
-        } else {
-          text = this.formatTimeAxisLabel(tick, truncateIndex);
-          while ((textWidth = fontRatio * this.getTextMetrics(text, fontSize).lines[0].width) > (maxWidth * .7)) {
-            truncateIndex++;
-            text = this.formatTimeAxisLabel(tick, truncateIndex);
+        truncateIndex = -1;
+        textIsntCollapsed = true;
+        textFitsInMaxSpace = false;
+        while (textIsntCollapsed && !textFitsInMaxSpace) {
+          truncateIndex++;
+          if (!(text = this.formatTimeAxisLabel(tick, truncateIndex))) {
+            textIsntCollapsed = false;
+            truncateIndex--;
+          } else {
+            width = this.getTextMetrics(text, fontSize).lines[0].width;
+            textFitsInMaxSpace = width <= maxWidth;
           }
         }
-        if (textWidth > widthOfLargest) {
-          widthOfLargest = textWidth;
-        }
-        if (truncateIndex > largestTruncation) {
-          largestTruncation = truncateIndex;
-        }
+        widthOfLargest = Math.max(width, widthOfLargest);
+        largestTruncation = Math.max(truncateIndex, largestTruncation);
       }
-      if (widthOfLargest === 0) {
-        dontDrawGroup();
-      } else {
-        tickGroup.truncateIndex = largestTruncation;
-        tickGroup.widthOfLargest = widthOfLargest;
-      }
+      tickGroup.widthOfLargest = widthOfLargest;
+      tickGroup.truncateIndex = largestTruncation;
     }
-    while (tickGroups[0].dontDrawLabels && tickGroups[0].dontDrawHashes) {
+    groupsRemoved = 0;
+    while (tickGroups[0].labelsCannotFit && tickGroups[0].dontDrawHashes && groupsRemoved < this.POSSIBLE_GRAINS.length) {
+      groupsRemoved++;
       tickGroups.splice(0, 1);
     }
     tickGroups = tickGroups.slice(0, 3);
-    for (i = q = 0, len6 = tickGroups.length; q < len6; i = ++q) {
+    for (i = p = 0, len6 = tickGroups.length; p < len6; i = ++p) {
       tickGroup = tickGroups[i];
       row = i + 1;
       numRows = tickGroups.length;
       tickGroup.row = row;
       tickGroup.numRows = numRows;
       ref1 = tickGroup.ticks;
-      for (r = 0, len7 = ref1.length; r < len7; r++) {
-        tick = ref1[r];
+      for (q = 0, len7 = ref1.length; q < len7; q++) {
+        tick = ref1[q];
         tick.row = row;
         tick.numRows = numRows;
       }
     }
     innerTicksToDraw = [];
-    for (groupIndex = s = 0, len8 = tickGroups.length; s < len8; groupIndex = ++s) {
+    for (groupIndex = r = 0, len8 = tickGroups.length; r < len8; groupIndex = ++r) {
       tickGroup = tickGroups[groupIndex];
-      ticks = tickGroup.ticks, row = tickGroup.row, numRows = tickGroup.numRows, truncateIndex = tickGroup.truncateIndex, grain = tickGroup.grain, dontDrawLabels = tickGroup.dontDrawLabels;
-      if (dontDrawLabels || (groupIndex === tickGroups.length - 1)) {
+      ticks = tickGroup.ticks, row = tickGroup.row, numRows = tickGroup.numRows, truncateIndex = tickGroup.truncateIndex, grain = tickGroup.grain;
+      if (tickGroup.labelsCannotFit || groupIndex === tickGroups.length - 1) {
         continue;
       }
       fontSize = this.getFontSize(row, numRows);
-      for (tickIndex = t = 0, len9 = ticks.length; t < len9; tickIndex = ++t) {
+      for (tickIndex = s = 0, len9 = ticks.length; s < len9; tickIndex = ++s) {
         tick = ticks[tickIndex];
         date = tick.date;
         text = this.formatTimeAxisLabel(tick, truncateIndex);
@@ -796,16 +791,17 @@ TimeAxis = React.createClass({
         continue;
       }
       ref2 = tickGroup.ticks;
-      for (tickIndex = u = 0, len10 = ref2.length; u < len10; tickIndex = ++u) {
+      for (tickIndex = t = 0, len10 = ref2.length; t < len10; tickIndex = ++t) {
         tick = ref2[tickIndex];
         this.addHashMarkFromTick(tick, hashByKey, this.props.scale, false);
       }
       i--;
     }
     outerMostTickGroup = _.last(tickGroups);
-    n = 1;
-    while (outerMostTickGroup.widthOfLargest * (outerMostTickGroup.ticks.length / n) > this.props.scale.dy * .7) {
-      n++;
+    numToSkip = 1;
+    largest = outerMostTickGroup.widthOfLargest;
+    while ((largest + 2 * this.LABEL_PADDING) * (outerMostTickGroup.ticks.length / numToSkip) > this.props.scale.dy * .7) {
+      numToSkip++;
     }
     numberSkippedInARow = 0;
     outerTicksToDraw = [];
@@ -813,14 +809,14 @@ TimeAxis = React.createClass({
     fontSize = this.getFontSize(row, tickGroups.length);
     fontRatio = fontSize / 12;
     ref3 = outerMostTickGroup.ticks;
-    for (index = v = 0, len11 = ref3.length; v < len11; index = ++v) {
+    for (index = u = 0, len11 = ref3.length; u < len11; index = ++u) {
       tick = ref3[index];
-      if (numberSkippedInARow < n && n !== 1 && index !== 0) {
+      if (numberSkippedInARow < numToSkip && numToSkip !== 1 && index !== 0) {
         numberSkippedInARow++;
       } else {
         numberSkippedInARow = 0;
         this.addHashMarkFromTick(tick, hashByKey, this.props.scale, true);
-        text = this.formatTimeAxisLabel(tick, outerMostTickGroup.truncateIndex);
+        text = this.formatTimeAxisLabel(tick, 0);
         textWidth = fontRatio * this.getTextMetrics(text, fontSize).lines[0].width;
         tick = this.formatTickLayout(tick);
         $.extend(tick, {
@@ -853,9 +849,14 @@ TimeAxis = React.createClass({
     var domain, endEpoch, incrementer, numTicks, pointer, startEpoch, ticks, time;
     domain = timeScale.domain;
     startEpoch = domain[0], endEpoch = domain[1];
+    ticks = [
+      {
+        date: new Date(startEpoch),
+        grain: grain
+      }
+    ];
     pointer = DateUtils.roundDateToGrain(new Date(startEpoch), grain);
     incrementer = DateUtils.incrementerForGrain[grain];
-    ticks = [];
     numTicks = 0;
     while ((time = pointer.getTime()) <= endEpoch) {
       if (time < startEpoch) {
@@ -888,7 +889,7 @@ TimeAxis = React.createClass({
   hashLengthForRow: function(row) {
     return this.SMALLEST_HASH_MARK * row;
   },
-  getX: function(shape, timeScale) {
+  getX: function(shape, timeScale, centerText) {
     var centerInPixels, date, epoch, grain, isLabel, middleEpoch, numRows, row, width;
     if (timeScale == null) {
       timeScale = this.props.scale;
@@ -897,12 +898,12 @@ TimeAxis = React.createClass({
     if (isLabel) {
       row = shape.row, numRows = shape.numRows, date = shape.date, grain = shape.grain, width = shape.width;
       epoch = date.getTime();
-      if (row === numRows) {
-        return timeScale.map(epoch) + 5;
-      } else {
+      if (centerText) {
         middleEpoch = DateUtils.midPointOfGrain(date, grain).getTime();
         centerInPixels = timeScale.map(middleEpoch);
         return centerInPixels - width / 2;
+      } else {
+        return timeScale.map(epoch) + this.LABEL_PADDING;
       }
     } else {
       epoch = shape.date.getTime();
@@ -970,12 +971,14 @@ TimeAxis = React.createClass({
         switch (truncateIndex) {
           case 0:
             return dateObj[grain];
-          default:
-            return "";
         }
       }
     }).call(this);
-    return val.toString();
+    if (val) {
+      return val.toString();
+    } else {
+      return void 0;
+    }
   },
   formatLabelByGrain: {
     second: function(truncateIndex, arg) {
@@ -986,8 +989,6 @@ TimeAxis = React.createClass({
           return second + 's';
         case 1:
           return second;
-        default:
-          return "";
       }
     },
     minute: function(truncateIndex, arg) {
@@ -998,8 +999,6 @@ TimeAxis = React.createClass({
           return minute + 'm';
         case 1:
           return minute;
-        default:
-          return "";
       }
     },
     hour: function(truncateIndex, arg) {
@@ -1010,8 +1009,6 @@ TimeAxis = React.createClass({
           return moment(date).format('ha');
         case 1:
           return moment(date).format('h');
-        default:
-          return "";
       }
     },
     day: function(truncateIndex, arg) {
@@ -1022,8 +1019,6 @@ TimeAxis = React.createClass({
           return moment(date).format("Do");
         case 1:
           return date.getDate();
-        default:
-          return "";
       }
     },
     month: function(truncateIndex, arg) {
@@ -1037,8 +1032,6 @@ TimeAxis = React.createClass({
           return standardMonth;
         case 2:
           return standardMonth[0];
-        default:
-          return "";
       }
     }
   },

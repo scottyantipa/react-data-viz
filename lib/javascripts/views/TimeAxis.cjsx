@@ -16,7 +16,8 @@ TimeAxis = React.createClass
 
   POSSIBLE_GRAINS: ["second", "minute", "hour", "day" ,"month","year"]
 
-  PIXELS_BETWEEN_HASHES:  12 # minimal padding between every vert line in the time axis
+  PIXELS_BETWEEN_HASHES:  8 # minimal padding between every vert line in the time axis
+  LABEL_PADDING:          3 # space between a hash mark and a label
   SMALLEST_HASH_MARK:     15 # shortest length of vert lines in time axis
   FONT_LARGEST_TIME_AXIS: 13
 
@@ -125,50 +126,47 @@ TimeAxis = React.createClass
         tick.key = @formatKeyForTick tick
 
     ###
-    Figure out the truncationIndex for each group.  This is the level to which
+    Figure out the truncateIndex for each group.  This is the level to which
     their label needs to be abbreviated (like "January" --> "Jan" --> "J" --> "").  All ticks in a
     group  will be truncated to the same level of abbreviation, for example... if September needs to be written as
     just "Sep", but "March" can fit fine as it is, we still chop down "March" to "Mar" for consistency.)
     ###
-    for tickGroup, tickIndex in tickGroups
+    for tickGroup, groupIndex in tickGroups
       {ticks} = tickGroup
 
-      dontDrawGroup = ->
-        tickGroup.dontDrawLabels = true
+      # TODO: the space for each tick is NOT uniform, as we assume here.  The first and last tick can have less space.
+      spacePerTick = (@props.scale.dy / ticks.length)
+      maxWidth = spacePerTick - 2 * @LABEL_PADDING # max amt of possible space for each tick label
+      if maxWidth < 10
+        tickGroup.labelsCannotFit = true
 
-      maxWidth = @props.scale.dy / ticks.length # max amt of possible space for each tick label
-      truncateIndex = largestTruncation = 0 # the level to which we will abreviate each lable in group
-      widthOfLargest = 0
+      largestTruncation = 0 # the level to which we will abreviate each lable in group
+      widthOfLargest    = 0
+      fontSize          = @FONT_LARGEST_TIME_AXIS # we dont yet know, so be conservative
 
-      if maxWidth < 10 # dont draw a label in less than 10px width
-        dontDrawGroup()
-        continue
-
-      # Get the font size, then figure out the ratio
-      # to the regular Canvas font size (because getLabelWidth uses standard font size)
-      fontSize = @FONT_LARGEST_TIME_AXIS # we dont yet know, so be conservative
-      fontRatio = fontSize / 12 # standard size
       for tick, tickIndex in ticks
-        if tickIndex is @POSSIBLE_GRAINS.length # At least the outermost row must not be truncated
-          text = @formatTimeAxisLabel tick, 0
-          textWidth = fontRatio * @getTextMetrics(text, fontSize).lines[0].width
-        else
-          text = @formatTimeAxisLabel tick, truncateIndex
-          while (textWidth = fontRatio * @getTextMetrics(text, fontSize).lines[0].width) > (maxWidth * .7)
-            truncateIndex++
-            text = @formatTimeAxisLabel tick, truncateIndex
-        if textWidth > widthOfLargest then widthOfLargest = textWidth
-        if truncateIndex > largestTruncation then largestTruncation = truncateIndex
+        truncateIndex      = -1
+        textIsntCollapsed  = true
+        textFitsInMaxSpace = false
+        while textIsntCollapsed and not textFitsInMaxSpace
+          truncateIndex++
+          if not text = @formatTimeAxisLabel tick, truncateIndex
+            textIsntCollapsed = false
+            truncateIndex--
+          else
+            width = @getTextMetrics(text, fontSize).lines[0].width
+            textFitsInMaxSpace = width <= maxWidth
 
-      # Remove tick group if they can't fit
-      if widthOfLargest is 0
-        dontDrawGroup()
-      else
-        tickGroup.truncateIndex = largestTruncation
-        tickGroup.widthOfLargest = widthOfLargest
+        widthOfLargest    = Math.max width, widthOfLargest
+        largestTruncation = Math.max truncateIndex, largestTruncation
 
-    # Remove the tick groups that are too dense to draw
-    while tickGroups[0].dontDrawLabels and tickGroups[0].dontDrawHashes
+      tickGroup.widthOfLargest = widthOfLargest
+      tickGroup.truncateIndex  = largestTruncation
+
+    # Remove the tick groups that are too dense to draw.  Make sure to leave at least one group.
+    groupsRemoved = 0
+    while tickGroups[0].labelsCannotFit and tickGroups[0].dontDrawHashes and groupsRemoved < @POSSIBLE_GRAINS.length
+      groupsRemoved++
       tickGroups.splice 0, 1
 
     tickGroups = tickGroups.slice 0, 3 # we only want a max of three granularities
@@ -187,11 +185,9 @@ TimeAxis = React.createClass
     # iterate over them and see which ones we can draw (can have positive width)
     innerTicksToDraw = [] # will eventually be added to axisLabels
     for tickGroup, groupIndex in tickGroups
-      {ticks, row, numRows, truncateIndex, grain, dontDrawLabels} = tickGroup
-      continue if dontDrawLabels or (groupIndex is tickGroups.length - 1)
-
+      {ticks, row, numRows, truncateIndex, grain} = tickGroup
+      continue if tickGroup.labelsCannotFit or groupIndex is tickGroups.length - 1 # outermost group is done separately
       fontSize = @getFontSize row, numRows
-
       for tick, tickIndex in ticks
         {date} = tick
         text = @formatTimeAxisLabel tick, truncateIndex
@@ -215,9 +211,10 @@ TimeAxis = React.createClass
 
     # For outer most ticks, figure out how many to skip (if not enough space for all)
     outerMostTickGroup = _.last tickGroups
-    n = 1 # will represent the number of ticks to not label in order to fit them
-    while outerMostTickGroup.widthOfLargest * (outerMostTickGroup.ticks.length / n) > @props.scale.dy * .7 # some padding
-      n++
+    numToSkip = 1 # will represent the number of ticks to not label in order to fit them
+    largest = outerMostTickGroup.widthOfLargest
+    while (largest + 2 * @LABEL_PADDING) * (outerMostTickGroup.ticks.length / numToSkip) > @props.scale.dy * .7 # some padding
+      numToSkip++
 
     # Now we need to pluck a bunch of tick marks out so that there are gaps
     # between each tick mark that we draw. That gap should be n tick marks wide.
@@ -227,13 +224,13 @@ TimeAxis = React.createClass
     fontSize = @getFontSize row, tickGroups.length
     fontRatio = fontSize / 12 # standard size
     for tick, index in outerMostTickGroup.ticks
-      if numberSkippedInARow < n and n isnt 1 and index isnt 0
+      if numberSkippedInARow < numToSkip and numToSkip isnt 1 and index isnt 0
         # we haven't made n ticks invisible yet, so dont draw this one
         numberSkippedInARow++
       else
         numberSkippedInARow = 0 # need to skip the next n ticks since we're drawing this one
         @addHashMarkFromTick tick, hashByKey, @props.scale, true
-        text = @formatTimeAxisLabel tick, outerMostTickGroup.truncateIndex
+        text = @formatTimeAxisLabel tick, 0 # dont truncate the outermost text
         textWidth = fontRatio * @getTextMetrics(text, fontSize).lines[0].width
         tick = @formatTickLayout(tick)
         $.extend tick, {text, fontSize}
@@ -254,10 +251,17 @@ TimeAxis = React.createClass
     {domain} = timeScale
     [startEpoch, endEpoch] = domain
 
-    # We will increment this date until we have created ticks for the whole range
+    # Always push the first tick. Then push ticks that are rounded to nearest grain.
+    ticks = [ # the array to populate with all of the time axis tick marks
+      {
+        date: new Date startEpoch
+        grain
+      }
+    ]
+
+    # This is the date we will increment
     pointer = DateUtils.roundDateToGrain new Date(startEpoch), grain
     incrementer = DateUtils.incrementerForGrain[grain]
-    ticks = [] # the array to populate with all of the time axis tick marks
     numTicks = 0
     while (time = pointer.getTime()) <= endEpoch
       if time < startEpoch
@@ -292,17 +296,17 @@ TimeAxis = React.createClass
   hashLengthForRow: (row) ->
     @SMALLEST_HASH_MARK * row
 
-  getX: (shape, timeScale = @props.scale) ->
+  getX: (shape, timeScale = @props.scale, centerText) ->
     isLabel = @typeOfShapeFromKey(shape.key) is 'tick'
     if isLabel
       {row, numRows, date, grain, width} = shape
       epoch = date.getTime()
-      if row is numRows
-        timeScale.map(epoch) + 5 # some padding
-      else # middle align the text
+      if centerText
         middleEpoch = DateUtils.midPointOfGrain(date, grain).getTime()
         centerInPixels = timeScale.map middleEpoch
         centerInPixels - width/2
+      else
+        timeScale.map(epoch) + @LABEL_PADDING # some padding
     else
       epoch = shape.date.getTime()
       timeScale.map epoch
@@ -370,10 +374,14 @@ TimeAxis = React.createClass
         switch truncateIndex
           when 0
             dateObj[grain]
-          else
-            ""
-    val.toString()
+    if val
+      val.toString()
+    else
+      undefined
 
+  # Returns a string or undefined if the label cannot be truncated to that level
+  # TODO: Day should display like "Feb 1 2011"
+  # TODO: Month should display like "Feb 2011"
   formatLabelByGrain:
     second: (truncateIndex, {second}) ->
       switch truncateIndex
@@ -381,33 +389,24 @@ TimeAxis = React.createClass
           second + 's'
         when 1
           second
-        else
-          ""
-
     minute: (truncateIndex, {minute}) ->
       switch truncateIndex
         when 0
           minute + 'm'
         when 1
           minute
-        else
-          ""
     hour: (truncateIndex, {date}) ->
       switch truncateIndex
         when 0
           moment(date).format 'ha' # 7pm
         when 1
           moment(date).format 'h' # 7
-        else
-          ""
     day: (truncateIndex, {date}) -> # Takes a Date object for moment to use
       switch truncateIndex
         when 0
           moment(date).format "Do" # Formats 31 as 31st
         when 1
           date.getDate()
-        else
-          ""
     month: (truncateIndex, {month}) ->
       standardMonth = DateUtils.MONTH_INFOS[month].name
       switch truncateIndex
@@ -417,8 +416,6 @@ TimeAxis = React.createClass
           standardMonth
         when 2
           standardMonth[0]
-        else
-          ""
 
   formatKeyForTick: (tick) ->
     [

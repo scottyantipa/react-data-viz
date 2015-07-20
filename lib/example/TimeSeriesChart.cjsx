@@ -233,7 +233,7 @@ TimeSeriesChart = React.createClass
   #
 
   # All date ranges will start here
-  baseDate: -> new Date 2011, 1, 1
+  baseDate: -> new Date 2011, 3, 8, 13, 20
   initRange: -> [@baseDate(), @baseDate()]
 
   incrementDateBy:
