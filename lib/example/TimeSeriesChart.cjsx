@@ -25,17 +25,19 @@ TimeSeriesChart = React.createClass
     mounted:   false
 
   render: ->
-    if not @state.mounted
-      return <div></div>
-
     <div className = 'time-series-chart'>
       <div className = 'filters'>
         {@renderTemperatureOptions()}
         {@renderTimeRangeOptions()}
         {@renderDataOptions()}
       </div>
-      <div className = 'chart'>
-        {@renderChart()}
+      <div
+        className = 'chart'
+        ref       = 'chart'
+      >
+        {
+          if @state.mounted then @renderChart()
+        }
       </div>
     </div>
 
@@ -111,8 +113,8 @@ TimeSeriesChart = React.createClass
   # Calculate origin, scales, etc
   # Assumes that this is mounted and we can access our parent node
   setChartDimensions: ->
-    $parent = $(@getDOMNode()).parent()
-    [width, height] = [$parent.width(), $parent.height()]
+    $chart = $ @refs.chart.getDOMNode()
+    [width, height] = [$chart.width(), $chart.height()]
 
     origin =
       x: @axisThickness

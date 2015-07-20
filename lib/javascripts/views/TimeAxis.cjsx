@@ -63,7 +63,8 @@ TimeAxis = React.createClass
         y1: origin.y + y1
 
       style = _.extend @props.axisLineStyle,
-        opacity: .1
+        opacity: .5
+        lineWidth: .5
 
       <Line
         style = style
