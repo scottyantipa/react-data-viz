@@ -33,29 +33,70 @@ DateUtils = {
       month: date.getMonth(),
       week: 4 * (date.getMonth()) + (Math.floor(date.getDate() / 7) + 1),
       day: date.getDate(),
-      hour: date.getHours()
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      second: date.getSeconds(),
+      millisecond: date.getMilliseconds(),
+      date: date
     };
+  },
+  grainsInOrder: ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
+  roundDateToGrain: function(date, grain) {
+    var allGrains, day, grainIndex, hour, millisecond, minute, month, ref, second, truncated, year;
+    ref = this.timeToDateObj(date.getTime()), year = ref.year, month = ref.month, day = ref.day, hour = ref.hour, minute = ref.minute, second = ref.second, millisecond = ref.millisecond;
+    allGrains = [year, month, day, hour, minute, second, millisecond];
+    grainIndex = _.indexOf(this.grainsInOrder, grain);
+    truncated = allGrains.slice(0, grainIndex + 1);
+    return moment(truncated).toDate();
+  },
+  incrementerForGrain: {
+    second: function(date) {
+      return date.setSeconds(date.getSeconds() + 1);
+    },
+    minute: function(date) {
+      return date.setMinutes(date.getMinutes() + 1);
+    },
+    hour: function(date) {
+      return date.setHours(date.getHours() + 1);
+    },
+    day: function(date) {
+      return date.setDate(date.getDate() + 1);
+    },
+    month: function(date) {
+      return date.setMonth(date.getMonth() + 1);
+    },
+    year: function(date) {
+      return date.setFullYear(date.getFullYear() + 1);
+    }
   },
   dateOfNextScale: function(date, grain) {
     var d;
     d = new Date(date.getTime());
     switch (grain) {
-      case "hour":
+      case 'second':
+        d.setSeconds(d.getSeconds() + 1);
+        d.setMilliseconds(d.getMilliseconds() + 1);
+        break;
+      case 'minute':
+        d.setMinutes(d.getMinutes() + 1);
+        d.setSeconds(0);
+        break;
+      case 'hour':
         d.setHours(d.getHours() + 1);
         d.setMinutes(0);
         break;
-      case "day":
+      case 'day':
         d.setDate(d.getDate() + 1);
         d.setHours(0);
         break;
-      case "week":
+      case 'week':
         d.setDate(d.getDate() + 7);
         break;
-      case "month":
+      case 'month':
         d.setMonth(d.getMonth() + 1);
         d.setDate(1);
         break;
-      case "year":
+      case 'year':
         d.setYear(d.getFullYear() + 1);
         d.setMonth(0);
         break;
@@ -539,7 +580,7 @@ If days are the smallest grain we can show, it will also render months and years
 
 TimeAxis = React.createClass({
   displayName: 'TimeAxis',
-  POSSIBLE_GRAINS: ["hour", "day", "month", "year"],
+  POSSIBLE_GRAINS: ["second", "minute", "hour", "day", "month", "year"],
   PIXELS_BETWEEN_HASHES: 12,
   SMALLEST_HASH_MARK: 15,
   FONT_LARGEST_TIME_AXIS: 13,
@@ -586,7 +627,7 @@ TimeAxis = React.createClass({
           y1: origin.y + y1
         };
         style = _.extend(_this.props.axisLineStyle, {
-          opacity: .2
+          opacity: .1
         });
         return React.createElement(Line, {
           "style": style,
@@ -618,16 +659,13 @@ TimeAxis = React.createClass({
     ref = this.POSSIBLE_GRAINS;
     for (row = j = 0, len = ref.length; j < len; row = ++j) {
       grain = ref[row];
-      ticks = this.allTicksOnAxisForGrain(grain, this.props.scale);
+      ticks = this.ticksForGrain(grain, this.props.scale);
       if (!ticks) {
         continue;
       }
-      row = row + 1;
       group = {
         ticks: ticks,
-        grain: grain,
-        row: row,
-        numRows: numRows
+        grain: grain
       };
       tickGroups.push(group);
     }
@@ -652,10 +690,7 @@ TimeAxis = React.createClass({
       ticks = tickGroup.ticks, grain = tickGroup.grain, row = tickGroup.row;
       for (m = 0, len3 = ticks.length; m < len3; m++) {
         tick = ticks[m];
-        $.extend(tick, {
-          row: row,
-          grain: grain
-        });
+        tick.grain = grain;
         tick.key = this.formatKeyForTick(tick);
       }
     }
@@ -666,16 +701,16 @@ TimeAxis = React.createClass({
     group  will be truncated to the same level of abbreviation, for example... if September needs to be written as
     just "Sep", but "March" can fit fine as it is, we still chop down "March" to "Mar" for consistency.)
      */
-    for (o = 0, len4 = tickGroups.length; o < len4; o++) {
-      tickGroup = tickGroups[o];
-      row = tickGroup.row, numRows = tickGroup.numRows, ticks = tickGroup.ticks;
+    for (tickIndex = o = 0, len4 = tickGroups.length; o < len4; tickIndex = ++o) {
+      tickGroup = tickGroups[tickIndex];
+      ticks = tickGroup.ticks;
       dontDrawGroup = function() {
         return tickGroup.dontDrawLabels = true;
       };
       maxWidth = this.props.scale.dy / ticks.length;
       truncateIndex = largestTruncation = 0;
       widthOfLargest = 0;
-      if (maxWidth < 3 && !this.isOutermostGroup(tickGroup)) {
+      if (maxWidth < 10) {
         dontDrawGroup();
         continue;
       }
@@ -683,7 +718,7 @@ TimeAxis = React.createClass({
       fontRatio = fontSize / 12;
       for (tickIndex = p = 0, len5 = ticks.length; p < len5; tickIndex = ++p) {
         tick = ticks[tickIndex];
-        if (row === numRows) {
+        if (tickIndex === this.POSSIBLE_GRAINS.length) {
           text = this.formatTimeAxisLabel(tick, 0);
           textWidth = fontRatio * this.getTextMetrics(text, fontSize).lines[0].width;
         } else {
@@ -814,77 +849,30 @@ TimeAxis = React.createClass({
       axisLabels: axisLabels
     };
   },
-  allTicksOnAxisForGrain: function(grain, timeScale) {
-    var domain, endDate, endEpoch, increment, isOneMonth, isOneYear, newTickDate, numTicks, ref, startDate, startEpoch, ticks;
+  ticksForGrain: function(grain, timeScale) {
+    var domain, endEpoch, incrementer, numTicks, pointer, startEpoch, ticks, time;
     domain = timeScale.domain;
     startEpoch = domain[0], endEpoch = domain[1];
-    ref = [new Date(domain[0]), new Date(domain[1])], startDate = ref[0], endDate = ref[1];
+    pointer = DateUtils.roundDateToGrain(new Date(startEpoch), grain);
+    incrementer = DateUtils.incrementerForGrain[grain];
     ticks = [];
-    increment = (function() {
-      switch (grain) {
-        case "hour":
-          if (startDate.getSeconds() !== 0) {
-            startDate.setHours(startDate.getHours() + 1);
-            startDate.setSeconds(0);
-          }
-          return (function(_this) {
-            return function(tickDate) {
-              return tickDate.setHours(tickDate.getHours() + 1);
-            };
-          })(this);
-        case "day":
-          return (function(_this) {
-            return function(tickDate) {
-              return tickDate.setDate(tickDate.getDate() + 1);
-            };
-          })(this);
-        case "month":
-          isOneMonth = startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear();
-          if (startDate.getDate() > 15 && !isOneMonth) {
-            startDate.setMonth(startDate.getMonth() + 1);
-            startDate.setDate(1);
-          }
-          return (function(_this) {
-            return function(tickDate) {
-              tickDate.setMonth(tickDate.getMonth() + 1);
-              return tickDate.setDate(1);
-            };
-          })(this);
-        case "year":
-          isOneYear = startDate.getFullYear() === endDate.getFullYear();
-          if (!isOneYear && endDate.getMonth() !== 0) {
-            startDate.setFullYear(startDate.getFullYear() + 1);
-            startDate.setMonth(0);
-            startDate.setDate(1);
-          }
-          return (function(_this) {
-            return function(tickDate) {
-              tickDate.setFullYear(tickDate.getFullYear() + 1);
-              tickDate.setMonth(0);
-              return tickDate.setDate(1);
-            };
-          })(this);
-        default:
-          break;
-      }
-    }).call(this);
     numTicks = 0;
-    while (startDate.getTime() <= endEpoch) {
-      newTickDate = new Date(startDate.getTime());
+    while ((time = pointer.getTime()) <= endEpoch) {
+      if (time < startEpoch) {
+        incrementer(pointer);
+        continue;
+      }
       ticks.push({
-        date: newTickDate,
+        date: new Date(time),
         grain: grain
       });
+      incrementer(pointer);
       numTicks++;
       if (numTicks >= 500) {
         return false;
       }
-      increment(startDate);
     }
     return ticks;
-  },
-  isOutermostGroup: function(tickGroup) {
-    return tickGroup.row === tickGroup.numRows;
   },
   getFontSize: function(row, numRows) {
     if (row === numRows) {
@@ -969,14 +957,78 @@ TimeAxis = React.createClass({
       How much we need to abbreviate the text by (its an integer)
    */
   formatTimeAxisLabel: function(tick, truncateIndex) {
-    var date, dateObj, day, getDay, getHour, getMonth, grain, isFirstTick, month, numRows, ref, row, val, week, year;
+    var date, dateObj, formatter, grain, isFirstTick, numRows, row, val;
     if (truncateIndex == null) {
       truncateIndex = 0;
     }
     date = tick.date, grain = tick.grain, row = tick.row, numRows = tick.numRows, isFirstTick = tick.isFirstTick;
-    ref = dateObj = DateUtils.timeToDateObj(date.getTime()), year = ref.year, month = ref.month, week = ref.week, day = ref.day;
-    getMonth = function() {
-      var standardMonth;
+    dateObj = DateUtils.timeToDateObj(date.getTime());
+    val = (function() {
+      if (formatter = this.formatLabelByGrain[grain]) {
+        return formatter(truncateIndex, dateObj);
+      } else {
+        switch (truncateIndex) {
+          case 0:
+            return dateObj[grain];
+          default:
+            return "";
+        }
+      }
+    }).call(this);
+    return val.toString();
+  },
+  formatLabelByGrain: {
+    second: function(truncateIndex, arg) {
+      var second;
+      second = arg.second;
+      switch (truncateIndex) {
+        case 0:
+          return second + 's';
+        case 1:
+          return second;
+        default:
+          return "";
+      }
+    },
+    minute: function(truncateIndex, arg) {
+      var minute;
+      minute = arg.minute;
+      switch (truncateIndex) {
+        case 0:
+          return minute + 'm';
+        case 1:
+          return minute;
+        default:
+          return "";
+      }
+    },
+    hour: function(truncateIndex, arg) {
+      var date;
+      date = arg.date;
+      switch (truncateIndex) {
+        case 0:
+          return moment(date).format('ha');
+        case 1:
+          return moment(date).format('h');
+        default:
+          return "";
+      }
+    },
+    day: function(truncateIndex, arg) {
+      var date;
+      date = arg.date;
+      switch (truncateIndex) {
+        case 0:
+          return moment(date).format("Do");
+        case 1:
+          return date.getDate();
+        default:
+          return "";
+      }
+    },
+    month: function(truncateIndex, arg) {
+      var month, standardMonth;
+      month = arg.month;
       standardMonth = DateUtils.MONTH_INFOS[month].name;
       switch (truncateIndex) {
         case 0:
@@ -986,55 +1038,9 @@ TimeAxis = React.createClass({
         case 2:
           return standardMonth[0];
         default:
-          if (row === numRows) {
-            return standardMonth[0];
-          } else {
-            return "";
-          }
-      }
-    };
-    getDay = function() {
-      switch (truncateIndex) {
-        case 0:
-          return moment(date).format("Do");
-        case 1:
-          return dateObj[grain];
-        default:
           return "";
       }
-    };
-    getHour = function() {
-      switch (truncateIndex) {
-        case 0:
-          return dateObj[grain] + 'hr';
-        case 1:
-          return dateObj[grain];
-        default:
-          return "";
-      }
-    };
-    val = (function() {
-      switch (grain) {
-        case "month":
-          return getMonth();
-        case "day":
-          return getDay();
-        case "hour":
-          return getHour();
-        default:
-          switch (truncateIndex) {
-            case 0:
-              return dateObj[grain];
-            default:
-              if (row === numRows) {
-                return dateObj[grain];
-              } else {
-                return "";
-              }
-          }
-      }
-    })();
-    return val.toString();
+    }
   },
   formatKeyForTick: function(tick) {
     return ["tick", tick.grain, "" + (tick.date.getTime())].join(this.KEY_DIVIDER);
