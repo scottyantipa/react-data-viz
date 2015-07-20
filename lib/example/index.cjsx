@@ -5,7 +5,7 @@ StatefulSmokeTest = require './StatefulSmokeTest.cjsx'
 Index = React.createClass
 
   render: ->
-    <div>
+    <div className = 'app'>
       {@renderChartOptions()}
       {@renderBody()}
     </div>
@@ -26,7 +26,7 @@ Index = React.createClass
 
 
   renderChartOptions: ->
-    <div>
+    <div className = 'chart-options'>
 
       <button
         onClick = { => @setState chartToShow: 'QPCRDashboard'}

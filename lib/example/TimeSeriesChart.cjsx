@@ -20,30 +20,33 @@ TimeSeriesChart = React.createClass
     [start, end] = @initRange()
     @incrementDateBy.twoYears end
 
-    tempRange:      [0, 100]
-    timeRange:      [start.getTime(), end.getTime()]
-    dataDispersion: 'weekly' # how much data to show ('ticks' is scale.ticks())
+    tempRange: [0, 100]
+    timeRange: [start.getTime(), end.getTime()]
+    mounted:   false
 
   render: ->
+    if not @state.mounted
+      return <div></div>
+
+    <div className = 'time-series-chart'>
+      <div className = 'filters'>
+        {@renderTemperatureOptions()}
+        {@renderTimeRangeOptions()}
+        {@renderDataOptions()}
+      </div>
+      <div className = 'chart'>
+        {@renderChart()}
+      </div>
+    </div>
+
+  renderChart: ->
     [startTime, endTime] = @state.timeRange
-    timeScale =
-      new LinearScale
-        domain: [startTime, endTime]
-        range:  [0, 800]
+    timeScale = @getTimeScale()
+    temperatureScale = @getTemperatureScale()
 
-    temperatureScale =
-      new LinearScale
-        domain: @state.tempRange
-        range:  [0, 400]
-
-    origin =
-      x: @axisThickness
-      y: temperatureScale.range[1] + @axisThickness
-
-    data = @generateData timeScale
-    points = _.map data, ({time, temperature}) =>
-      x: timeScale.map(time) + origin.x
-      y: -temperatureScale.map(temperature) + origin.y
+    points = _.map @state.data, ({time, temperature}) =>
+      x: timeScale.map(time) + @state.origin.x
+      y: -temperatureScale.map(temperature) + @state.origin.y
 
     lineStyle = {opacity: .5, strokeStyle: 'blue'}
 
@@ -53,54 +56,116 @@ TimeSeriesChart = React.createClass
       fontSize:   12
       color:      'hsl(205, 15%, 51%)'
 
-    <div className = 'time-series-chart'>
-      {@renderTemperatureOptions()}
-      {@renderTimeRangeOptions()}
-      {@renderDataOptions()}
-      <Surface
-        top    = 0
-        left   = 0
-        width  = {timeScale.range[1] + 200}
-        height = {temperatureScale.range[1] + 200}
-      >
-        <TimeAxis
-          scale         = timeScale
-          axis          = 'x'
-          placement     = 'below'
-          direction     = 'right'
-          origin        = origin
-          thickness     = @axisThickness
-          axisLineStyle = @getAxisLineStyle()
-          textStyle     = labelStyle
-        />
+    <Surface
+      top    = 0
+      left   = 0
+      width  = {timeScale.range[1] + 200}
+      height = {temperatureScale.range[1] + 200}
+    >
+      <TimeAxis
+        scale         = timeScale
+        axis          = 'x'
+        placement     = 'below'
+        direction     = 'right'
+        origin        = @state.origin
+        thickness     = @axisThickness
+        axisLineStyle = @getAxisLineStyle()
+        textStyle     = labelStyle
+      />
 
-        <Axis
-          axisName        = 'Temp'
-          scale           = temperatureScale
-          axis            = 'y'
-          placement       = 'right'
-          direction       = 'up'
-          offset          = 1
-          otherAxisLength = timeScale.dy
-          origin          = origin
-          thickness       = @axisThickness
-          axisLineStyle   = @getAxisLineStyle()
-          textStyle       = labelStyle
-          labelForTick    = {(tick) -> "#{tick}˚"}
-        />
+      <Axis
+        axisName        = 'Temp'
+        scale           = temperatureScale
+        axis            = 'y'
+        placement       = 'right'
+        direction       = 'up'
+        offset          = 1
+        otherAxisLength = timeScale.dy
+        origin          = @state.origin
+        thickness       = @axisThickness
+        axisLineStyle   = @getAxisLineStyle()
+        textStyle       = labelStyle
+        labelForTick    = {(tick) -> "#{tick}˚"}
+      />
 
-        <MultiLine
-          points = points
-          style  = lineStyle
-          frame  = {{x: 0, y: 0, width: 0, height: 0}} # used for click events, which we are ignoring for now
-        />
+      <MultiLine
+        points = points
+        style  = lineStyle
+        frame  = {{x: 0, y: 0, width: 0, height: 0}} # used for click events, which we are ignoring for now
+      />
 
-        <Group>
-          {_.map points, (p) => @formatPoint(p)}
-        </Group>
+      <Group>
+        {_.map points, (p) => @formatPoint(p)}
+      </Group>
 
-      </Surface>
-    </div>
+    </Surface>
+
+  # Now that we're loaded in the DOM, use parent to calculate our chart dimensions
+  componentDidMount: ->
+    window.addEventListener 'resize', @setChartDimensions
+    @setChartDimensions()
+
+  componentWillUnmount: ->
+    window.removeEventListener 'resize', @setChartDimensions
+
+  # Calculate origin, scales, etc
+  # Assumes that this is mounted and we can access our parent node
+  setChartDimensions: ->
+    $parent = $(@getDOMNode()).parent()
+    [width, height] = [$parent.width(), $parent.height()]
+
+    origin =
+      x: @axisThickness
+      y: height - @axisThickness
+
+    @setState(
+      {width, height, origin}
+      =>
+        if not @state.data
+          @setState
+            data: @generateData()
+            mounted: true
+    )
+
+  generateData: (grain = 'weekly') ->
+    timeScale = @getTimeScale()
+    tempDelta = @state.tempRange[1] - @state.tempRange[0]
+    randTemp = => @state.tempRange[0] + Math.random() * tempDelta
+
+    pointsForStep = (step) ->
+      currentTime = timeScale.domain[0]
+      data = [currentTime]
+      while (currentTime += step) <= timeScale.domain[1]
+        data.push
+          time:        currentTime
+          temperature: randTemp()
+      data
+
+    switch grain
+      when 'fit'
+        for tick in timeScale.ticks()
+          temp = randTemp()
+          {time: tick, temperature: temp}
+      when 'daily'
+        pointsForStep 1000 * 60 * 60 * 24
+      when 'weekly'
+        pointsForStep 1000 * 60 * 60 * 24 * 7
+      when 'monthly'
+        pointsForStep 1000 * 60 * 60 * 24 * 7 * 4
+      when 'yearly'
+        pointsForStep 1000 * 60 * 60 * 24 * 7 * 4 * 12
+
+  getTimeScale: ->
+    [startTime, endTime] = @state.timeRange
+    new LinearScale
+      domain: [startTime, endTime]
+      range:  [0, @state.width - 2 * @axisThickness]
+
+  getTemperatureScale: ->
+    [startTime, endTime] = @state.timeRange
+    new LinearScale
+      domain: @state.tempRange
+      range:  [0, @state.height - 2 * @axisThickness]
 
   formatPoint: ({x,y}) ->
     <Point
@@ -113,11 +178,11 @@ TimeSeriesChart = React.createClass
     <div className = 'data-options'>
       <span>Data Range</span>
       {
-        _.map ['fit', 'daily', 'weekly', 'monthly', 'yearly'], (timeGranularity) =>
+        _.map ['fit', 'daily', 'weekly', 'monthly', 'yearly'], (grain) =>
           <button
-            onClick = {=> @setState dataDispersion: timeGranularity}
+            onClick = {=> @setState data: @generateData(grain)}
           >
-            {timeGranularity}
+            {grain}
           </button>
       }
 
@@ -180,31 +245,6 @@ TimeSeriesChart = React.createClass
     twoYears       : (date) -> date.setYear date.getFullYear() + 2
     tenYears       : (date) -> date.setYear date.getFullYear() + 10
     twoHundredYears: (date) -> date.setYear date.getFullYear() + 200
-
-  generateData: (timeScale) ->
-    tempDelta = @state.tempRange[1] - @state.tempRange[0]
-    randTemp = => @state.tempRange[0] + Math.random() * tempDelta
-    pointsForStep = (step) ->
-      currentTime = timeScale.domain[0]
-      data = [currentTime]
-      while (currentTime += step) <= timeScale.domain[1]
-        data.push
-          time:        currentTime
-          temperature: randTemp()
-      data
-    switch @state.dataDispersion
-      when 'fit'
-        for tick in timeScale.ticks()
-          temp = randTemp()
-          {time: tick, temperature: temp}
-      when 'daily'
-        pointsForStep 1000 * 60 * 60 * 24
-      when 'weekly'
-        pointsForStep 1000 * 60 * 60 * 24 * 7
-      when 'monthly'
-        pointsForStep 1000 * 60 * 60 * 24 * 7 * 4
-      when 'yearly'
-        pointsForStep 1000 * 60 * 60 * 24 * 7 * 4 * 12
 
   getAxisLineStyle: ->
     opacity: .2
