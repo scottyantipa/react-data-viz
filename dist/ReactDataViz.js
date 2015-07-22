@@ -16,9 +16,6 @@ DateUtils = {
   midPointOfGrain: function(date, grain) {
     var halfDiff, nextDate;
     nextDate = this.dateOfNextScale(date, grain);
-    if (!nextDate) {
-      return this.DATE_GRAIN_INFO[grain].numMilSeconds / 2;
-    }
     halfDiff = (nextDate.getTime() - date.getTime()) / 2;
     return new Date(date.getTime() + halfDiff);
   },
@@ -31,7 +28,6 @@ DateUtils = {
     return {
       year: date.getFullYear(),
       month: date.getMonth(),
-      week: 4 * (date.getMonth()) + (Math.floor(date.getDate() / 7) + 1),
       day: date.getDate(),
       hour: date.getHours(),
       minute: date.getMinutes(),
@@ -89,9 +85,6 @@ DateUtils = {
         d.setDate(d.getDate() + 1);
         d.setHours(0);
         break;
-      case 'week':
-        d.setDate(d.getDate() + 7);
-        break;
       case 'month':
         d.setMonth(d.getMonth() + 1);
         d.setDate(1);
@@ -104,122 +97,7 @@ DateUtils = {
         null;
     }
     return d;
-  },
-  getFebDays: function(year) {
-    var dateObj, i, mnth;
-    if (!this.isValidYear(year)) {
-      return false;
-    }
-    mnth = 1;
-    i = 0;
-    while (mnth === 1) {
-      i++;
-      dateObj = new Date(year, 1, i);
-      mnth = dateObj.getMonth();
-    }
-    return i - 1;
-  },
-  isValidMonth: function(month) {
-    return _.isNumber(month) && [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].indexOf(month) !== -1;
-  },
-  isValidYear: function(year) {
-    return _.isNumber(year) && year.toString().length === 4;
-  },
-  DATE_GRAIN_INFO: {
-    second: {
-      name: "second",
-      index: 1,
-      numMilSeconds: 1000
-    },
-    minute: {
-      name: "minute",
-      index: 2,
-      numMilSeconds: 60000
-    },
-    hour: {
-      name: "hour",
-      index: 3,
-      numMilSeconds: 3600000
-    },
-    day: {
-      name: "day",
-      index: 4,
-      numMilSeconds: 86400000
-    },
-    month: {
-      name: "month",
-      index: 5,
-      numMilSeconds: null
-    },
-    year: {
-      name: "year",
-      index: 7,
-      numMilSeconds: null
-    }
-  },
-  MONTH_INFOS: [
-    {
-      calInt: 0,
-      name: 'Jan',
-      days: 31,
-      longName: 'January'
-    }, {
-      calInt: 1,
-      name: 'Feb',
-      days: null,
-      longName: 'February'
-    }, {
-      calInt: 2,
-      name: 'Mar',
-      days: 31,
-      longName: 'March'
-    }, {
-      calInt: 3,
-      name: 'Apr',
-      days: 30,
-      longName: 'April'
-    }, {
-      calInt: 4,
-      name: 'May',
-      days: 31,
-      longName: 'May'
-    }, {
-      calInt: 5,
-      name: 'Jun',
-      days: 30,
-      longName: 'June'
-    }, {
-      calInt: 6,
-      name: 'Jul',
-      days: 31,
-      longName: 'July'
-    }, {
-      calInt: 7,
-      name: 'Aug',
-      days: 31,
-      longName: 'August'
-    }, {
-      calInt: 8,
-      name: 'Sep',
-      days: 30,
-      longName: 'September'
-    }, {
-      calInt: 9,
-      name: 'Oct',
-      days: 31,
-      longName: 'October'
-    }, {
-      calInt: 10,
-      name: 'Nov',
-      days: 30,
-      longName: 'November'
-    }, {
-      calInt: 11,
-      name: 'Dec',
-      days: 31,
-      longName: 'December'
-    }
-  ]
+  }
 };
 
 module.exports = DateUtils;
@@ -653,7 +531,7 @@ TimeAxis = React.createClass({
     });
   },
   calcShapes: function() {
-    var axisHashes, axisLabels, date, epoch, fontRatio, fontSize, grain, group, groupIndex, groupsRemoved, hash, hashByKey, i, index, innerTicksToDraw, j, k, l, largest, largestTruncation, len, len1, len10, len11, len2, len3, len4, len5, len6, len7, len8, len9, m, maxWidth, n, numRows, numToSkip, numberSkippedInARow, o, outerMostTickGroup, outerTicksToDraw, p, q, r, ref, ref1, ref2, ref3, row, s, spacePerTick, t, text, textFitsInMaxSpace, textIsntCollapsed, textWidth, tick, tickGroup, tickGroups, tickIndex, ticks, truncateIndex, u, width, widthOfLargest;
+    var axisHashes, axisLabels, date, epoch, fontRatio, fontSize, grain, group, groupIndex, groupsRemoved, hash, hashByKey, i, index, innerTicksToDraw, j, k, l, largest, largestTruncation, len, len1, len10, len11, len2, len3, len4, len5, len6, len7, len8, len9, maxWidth, n, numRows, numToSkip, numberSkippedInARow, o, outerMostTickGroup, outerTicksToDraw, p, q, r, ref, ref1, ref2, ref3, row, s, spacePerTick, t, text, textFitsInMaxSpace, textIsntCollapsed, textWidth, tick, tickGroup, tickGroups, tickIndex, ticks, truncateIndex, u, v, width, widthOfLargest;
     numRows = this.POSSIBLE_GRAINS.length;
     axisLabels = [];
     axisHashes = [];
@@ -690,8 +568,8 @@ TimeAxis = React.createClass({
     for (l = 0, len2 = tickGroups.length; l < len2; l++) {
       tickGroup = tickGroups[l];
       ticks = tickGroup.ticks, grain = tickGroup.grain, row = tickGroup.row;
-      for (m = 0, len3 = ticks.length; m < len3; m++) {
-        tick = ticks[m];
+      for (n = 0, len3 = ticks.length; n < len3; n++) {
+        tick = ticks[n];
         tick.grain = grain;
         tick.key = this.formatKeyForTick(tick);
       }
@@ -703,7 +581,7 @@ TimeAxis = React.createClass({
     group  will be truncated to the same level of abbreviation, for example... if September needs to be written as
     just "Sep", but "March" can fit fine as it is, we still chop down "March" to "Mar" for consistency.)
      */
-    for (groupIndex = n = 0, len4 = tickGroups.length; n < len4; groupIndex = ++n) {
+    for (groupIndex = o = 0, len4 = tickGroups.length; o < len4; groupIndex = ++o) {
       tickGroup = tickGroups[groupIndex];
       ticks = tickGroup.ticks;
       spacePerTick = this.props.scale.dy / ticks.length;
@@ -714,7 +592,7 @@ TimeAxis = React.createClass({
       largestTruncation = 0;
       widthOfLargest = 0;
       fontSize = this.FONT_LARGEST_TIME_AXIS;
-      for (tickIndex = o = 0, len5 = ticks.length; o < len5; tickIndex = ++o) {
+      for (tickIndex = p = 0, len5 = ticks.length; p < len5; tickIndex = ++p) {
         tick = ticks[tickIndex];
         truncateIndex = -1;
         textIsntCollapsed = true;
@@ -741,28 +619,28 @@ TimeAxis = React.createClass({
       tickGroups.splice(0, 1);
     }
     tickGroups = tickGroups.slice(0, 3);
-    for (i = p = 0, len6 = tickGroups.length; p < len6; i = ++p) {
+    for (i = q = 0, len6 = tickGroups.length; q < len6; i = ++q) {
       tickGroup = tickGroups[i];
       row = i + 1;
       numRows = tickGroups.length;
       tickGroup.row = row;
       tickGroup.numRows = numRows;
       ref1 = tickGroup.ticks;
-      for (q = 0, len7 = ref1.length; q < len7; q++) {
-        tick = ref1[q];
+      for (r = 0, len7 = ref1.length; r < len7; r++) {
+        tick = ref1[r];
         tick.row = row;
         tick.numRows = numRows;
       }
     }
     innerTicksToDraw = [];
-    for (groupIndex = r = 0, len8 = tickGroups.length; r < len8; groupIndex = ++r) {
+    for (groupIndex = s = 0, len8 = tickGroups.length; s < len8; groupIndex = ++s) {
       tickGroup = tickGroups[groupIndex];
       ticks = tickGroup.ticks, row = tickGroup.row, numRows = tickGroup.numRows, truncateIndex = tickGroup.truncateIndex, grain = tickGroup.grain;
       if (tickGroup.labelsCannotFit || groupIndex === tickGroups.length - 1) {
         continue;
       }
       fontSize = this.getFontSize(row, numRows);
-      for (tickIndex = s = 0, len9 = ticks.length; s < len9; tickIndex = ++s) {
+      for (tickIndex = t = 0, len9 = ticks.length; t < len9; tickIndex = ++t) {
         tick = ticks[tickIndex];
         date = tick.date;
         text = this.formatTimeAxisLabel(tick, truncateIndex);
@@ -791,7 +669,7 @@ TimeAxis = React.createClass({
         continue;
       }
       ref2 = tickGroup.ticks;
-      for (tickIndex = t = 0, len10 = ref2.length; t < len10; tickIndex = ++t) {
+      for (tickIndex = u = 0, len10 = ref2.length; u < len10; tickIndex = ++u) {
         tick = ref2[tickIndex];
         this.addHashMarkFromTick(tick, hashByKey, this.props.scale, false);
       }
@@ -809,7 +687,7 @@ TimeAxis = React.createClass({
     fontSize = this.getFontSize(row, tickGroups.length);
     fontRatio = fontSize / 12;
     ref3 = outerMostTickGroup.ticks;
-    for (index = u = 0, len11 = ref3.length; u < len11; index = ++u) {
+    for (index = v = 0, len11 = ref3.length; v < len11; index = ++v) {
       tick = ref3[index];
       if (numberSkippedInARow < numToSkip && numToSkip !== 1 && index !== 0) {
         numberSkippedInARow++;
@@ -1022,16 +900,16 @@ TimeAxis = React.createClass({
       }
     },
     month: function(truncateIndex, arg) {
-      var month, standardMonth;
-      month = arg.month;
-      standardMonth = DateUtils.MONTH_INFOS[month].name;
+      var date, m;
+      date = arg.date;
+      m = moment(date);
       switch (truncateIndex) {
         case 0:
-          return DateUtils.MONTH_INFOS[month].longName;
+          return m.format('MMMM');
         case 1:
-          return standardMonth;
+          return m.format('MMM');
         case 2:
-          return standardMonth[0];
+          return m.format('MMM')[0];
       }
     }
   },
