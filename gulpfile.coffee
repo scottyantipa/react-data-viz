@@ -1,6 +1,3 @@
-# For diagnosing browserify-shim in console
-# process.env.BROWSERIFYSHIM_DIAGNOSTICS=1
-
 gulp       = require 'gulp'
 browserify = require 'browserify'
 transform  = require 'vinyl-transform'
@@ -12,10 +9,6 @@ plumber    = require 'gulp-plumber'
 webserver  = require 'gulp-webserver'
 livereload = require 'gulp-livereload'
 clean      = require 'gulp-clean'
-
-browserified = transform (filename) ->
-  browserify(filename).bundle()
-
 
 # ReactDataViz.js
 gulp.task 'dist', ->
