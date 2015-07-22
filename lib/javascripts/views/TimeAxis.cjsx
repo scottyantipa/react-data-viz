@@ -392,30 +392,30 @@ TimeAxis = React.createClass
     minute: (truncateIndex, {minute}) ->
       switch truncateIndex
         when 0
-          minute + 'm'
+          minute + 'm' # 7m
         when 1
-          minute
+          minute       # 7
     hour: (truncateIndex, {date}) ->
       switch truncateIndex
         when 0
           moment(date).format 'ha' # 7pm
         when 1
-          moment(date).format 'h' # 7
+          moment(date).format 'h'  # 7
     day: (truncateIndex, {date}) -> # Takes a Date object for moment to use
       switch truncateIndex
         when 0
           moment(date).format "Do" # Formats 31 as 31st
         when 1
           date.getDate()
-    month: (truncateIndex, {month}) ->
-      standardMonth = DateUtils.MONTH_INFOS[month].name
+    month: (truncateIndex, {date}) ->
+      m = moment date
       switch truncateIndex
         when 0
-          DateUtils.MONTH_INFOS[month].longName
+          m.format 'MMMM'    # July
         when 1
-          standardMonth
+          m.format 'MMM'     # Jul
         when 2
-          standardMonth[0]
+          m.format('MMM')[0] # J
 
   formatKeyForTick: (tick) ->
     [
