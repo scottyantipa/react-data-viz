@@ -1,6 +1,5 @@
 gulp       = require 'gulp'
 browserify = require 'browserify'
-transform  = require 'vinyl-transform'
 source     = require 'vinyl-source-stream'
 stylus     = require 'gulp-stylus'
 rename     = require 'gulp-rename'
