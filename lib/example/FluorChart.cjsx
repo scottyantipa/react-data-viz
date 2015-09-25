@@ -1,9 +1,8 @@
 {Surface,
 MultiLine}   = ReactCanvas
-Axis         = require '../javascripts/views/Axis.cjsx'
-OrdinalScale = require '../javascripts/util/OrdinalScale.coffee'
-LinearScale  = require '../javascripts/util/LinearScale.coffee'
-
+{Axis,
+OrdinalScale,
+LinearScale} = ReactDataViz
 ###
 Renders a qCPR line chart showing Fluorescense vs. Cycle
 ###

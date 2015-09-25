@@ -70,6 +70,7 @@ TimeAxis = React.createClass
       <Line
         style = style
         frame = frame
+        key   = index
       />
 
 

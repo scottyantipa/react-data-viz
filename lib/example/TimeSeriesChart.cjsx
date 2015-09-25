@@ -1,6 +1,7 @@
-TimeAxis    = require '../javascripts/views/TimeAxis.cjsx'
-Axis        = require '../javascripts/views/Axis.cjsx'
-LinearScale = require '../javascripts/util/LinearScale.coffee'
+{TimeAxis,
+Axis,
+LinearScale} = ReactDataViz
+
 {Surface,
 Group,
 Point,
@@ -11,6 +12,7 @@ MultiLine}  = ReactCanvas
 Example time chart that renders a single line with points.
 It has optinos for changing the range of time and range of
 temperature (y axis).
+This is not exposed by ReactDataViz because it is currently a fairly specific component.
 ###
 TimeSeriesChart = React.createClass
   displayName: 'TimeSeriesChart'
@@ -97,7 +99,7 @@ TimeSeriesChart = React.createClass
       />
 
       <Group>
-        {_.map points, (p) => @formatPoint(p)}
+        {_.map points, @renderPoint}
       </Group>
 
     </Surface>
@@ -169,20 +171,22 @@ TimeSeriesChart = React.createClass
       domain: @state.tempRange
       range:  [0, @state.height - 2 * @axisThickness]
 
-  formatPoint: ({x,y}) ->
+  renderPoint: ({x,y}, index) ->
     <Point
-      frame = {{x,y}}
+      frame  = {{x,y}}
       radius = 2
-      style = {{fillStyle: 'black'}}
+      style  = {{fillStyle: 'black'}}
+      key    = index
     />
 
   renderDataOptions: ->
     <div className = 'data-options'>
       <span>Data Range</span>
       {
-        _.map ['fit', 'daily', 'weekly', 'monthly', 'yearly'], (grain) =>
+        _.map ['fit', 'daily', 'weekly', 'monthly', 'yearly'], (grain, i) =>
           <button
             onClick = {=> @setState data: @generateData(grain)}
+            key     = i
           >
             {grain}
           </button>
@@ -213,14 +217,17 @@ TimeSeriesChart = React.createClass
   renderTimeRangeOptions: ->
     timeFrames = Object.keys @incrementDateBy
 
-    buttons = _.map timeFrames, (timeFrame) =>
+    buttons = _.map timeFrames, (timeFrame, i) =>
       onClick = =>
         [start, end] = @initRange()
         @incrementDateBy[timeFrame] end
         @setState
           timeRange: [start.getTime(), end.getTime()]
 
-      <button onClick = onClick>
+      <button
+        onClick = onClick
+        key     = i
+        >
         {timeFrame}
       </button>
 
