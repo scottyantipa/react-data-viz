@@ -1,5 +1,5 @@
 {
-  "name": "ReactDataViz",
+  "name": "react-data-viz",
   "description": "Use react to render data visualization to <canvas>.",
   "version": "0.0.36",
   "keywords": ["React", "data", "dataviz"],
