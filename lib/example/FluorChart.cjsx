@@ -114,6 +114,7 @@ FluorChart = React.createClass
 
       pointsForLine = _.map points, ([x,y]) -> {x, y}
       <MultiLine
+        key    = wellKey
         points = pointsForLine
         style  = style
       />

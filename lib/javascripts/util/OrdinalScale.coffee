@@ -1,16 +1,20 @@
-LinearScale = require './LinearScale.coffee'
+Scale = require './Scale.coffee'
 
-class OrdinalScale extends LinearScale
+# A scale that linearly maps a domain of discrete values into
+# a range of continous values.
+class OrdinalScale extends Scale
 
-  domain: [] # an ordered set like ["A", "B", "C"...]
-  range: []
-
-  # Used to compare to values in scale domain
-  # override this in implementation if necessary
-  aIsGreater: (a, b) -> a > b
-
-  computeDX: ->
+  constructor: ({@domain, @range}) ->
     @dx = @domain.length
+    @setup()
+  # Passing linearly:true allows you to map values that aren't
+  # actually in @domain
+  map: (x, linearly = false) ->
+    if linearly
+      super
+    else
+      index = @domain.indexOf x
+      index * @m
 
   # This is pretty expensive.  I just walk through the whole domain
   # and find the x value that is closest to y when mapped
@@ -23,15 +27,6 @@ class OrdinalScale extends LinearScale
         closestX = x
     closestX
 
-  # For example, if this is an ordinal scale of natural numbers,
-  # we can pass it a real number and we will still map it properly (rather than place
-  # it at beginning or end like we would with linearly = false)
-  map: (x, linearly = false) ->
-    if linearly
-      super
-    else
-      index = @domain.indexOf x
-      index * @m
 
   # Different from index in that position can be negative
   # if the x value passed is not in @domain and is less than all values
@@ -40,14 +35,15 @@ class OrdinalScale extends LinearScale
     if index isnt -1
       index
     else
-      if @aIsGreater x, _.last(@domain)
+      if x > _.last(@domain)
         @domain.length
-      else if @aIsGreater @domain[0], x
+      else if @domain[0] > x
         -1
+
   yValueAtZero: ->
     @range[0]
 
-  ticks: (minGapInRange) ->
+  ticks: ->
     @domain
 
 module.exports = OrdinalScale
