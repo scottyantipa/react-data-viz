@@ -124,7 +124,15 @@ LinearScale = (function(superClass) {
   extend(LinearScale, superClass);
 
   function LinearScale(arg) {
-    this.domain = arg.domain, this.range = arg.range;
+    var dx, roundDomain, step;
+    this.domain = arg.domain, this.range = arg.range, roundDomain = arg.roundDomain;
+    if (roundDomain) {
+      dx = this.diffInRange(this.domain);
+      if (dx !== 0) {
+        step = this.getStep(dx);
+        this.domain = [Math.floor(this.domain[0] / step) * step, Math.ceil(this.domain[1] / step) * step];
+      }
+    }
     this.dx = this.diffInRange(this.domain);
     this.setup();
   }

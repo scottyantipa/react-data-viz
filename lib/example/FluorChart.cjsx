@@ -126,7 +126,9 @@ FluorChart = React.createClass
   getFluorScale: (range1 = 300) ->
     new LinearScale
       domain: @props.fluorResults.domain
+      roundDomain: true
       range: [0, range1]
+
 
 
 module.exports = FluorChart

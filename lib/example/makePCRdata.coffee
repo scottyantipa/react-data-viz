@@ -20,7 +20,9 @@ for row in [1..NUM_ROWS]
     # continue if numWellsCreated < 20 or numWellsCreated > 100
     logFnc = (x) ->
       k = .3 * column
-      5000 / (1 + Math.pow(Math.E, -k*(x - ((200 * row) + (6 * column)) / 80)))
+      # Get some random-ish y values that include negatives and positives
+      yVal = 12345 / (1 + Math.pow(Math.E, -k*(x - ((200 * row) + (6 * column)) / 80)))
+      yVal -= 4836
 
     wellKey = dataManager.keyForWell row, column
 
@@ -29,7 +31,7 @@ for row in [1..NUM_ROWS]
     while i <= 40
       resultsByWellKey[wellKey].push
         cycle: i
-        fluorescense: Math.floor (logFnc(i) * 100) / 100
+        fluorescense: logFnc(i)
       i++
 
 fs.writeFile __dirname + '/../../public/data/qpcrGenData.json', JSON.stringify(resultsByWellKey)

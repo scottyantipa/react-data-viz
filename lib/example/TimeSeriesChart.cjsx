@@ -170,6 +170,7 @@ TimeSeriesChart = React.createClass
     new LinearScale
       domain: @state.tempRange
       range:  [0, @state.height - 2 * @axisThickness]
+      roundDomain: true
 
   renderPoint: ({x,y}, index) ->
     <Point
@@ -198,9 +199,9 @@ TimeSeriesChart = React.createClass
     <div className = 'tempeature-ranges'>
       <span>Temp range</span>
       <button
-        onClick = {=> @setState tempRange: [50,90]}
+        onClick = {=> @setState tempRange: [42,93]}
       >
-        50˚ - 90˚
+        42˚ - 93˚
       </button>
       <button
         onClick = {=> @setState tempRange: [0,100]}
