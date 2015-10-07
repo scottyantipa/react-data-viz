@@ -15,7 +15,7 @@ class Scale
   setup: ->
     @dy = @diffInRange @range
     @m  =  @dy / @dx
-    @b  = @computeB()
+    @b  = @computeIntercept()
 
   map: (x) ->
     if @dx is 0
@@ -26,16 +26,16 @@ class Scale
   invert: (y) ->
     (y - @b) / m
 
-  diffInRange: (range) ->
-    Math.abs range[1] - range[0]
+  diffInRange: (rangeDelta) ->
+    Math.abs rangeDelta[1] - rangeDelta[0]
 
   # Find y intercept (the 'b' in y = mx + b)
-  computeB: ->
+  computeIntercept: ->
     @range[0] - (@m * @domain[0])
 
   # calculate a good gap between domain values as a power of 10
-  getStep: (range) ->
-    exp = Math.floor Math.log(range) / Math.LN10
+  getStep: (domainDelta) ->
+    exp = Math.floor Math.log10 domainDelta
     Math.pow 10, exp
 
   # This will return an array of domain values separated by a power of 10

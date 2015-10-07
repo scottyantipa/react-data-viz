@@ -238,7 +238,7 @@ Scale = (function() {
   Scale.prototype.setup = function() {
     this.dy = this.diffInRange(this.range);
     this.m = this.dy / this.dx;
-    return this.b = this.computeB();
+    return this.b = this.computeIntercept();
   };
 
   Scale.prototype.map = function(x) {
@@ -253,17 +253,17 @@ Scale = (function() {
     return (y - this.b) / m;
   };
 
-  Scale.prototype.diffInRange = function(range) {
-    return Math.abs(range[1] - range[0]);
+  Scale.prototype.diffInRange = function(rangeDelta) {
+    return Math.abs(rangeDelta[1] - rangeDelta[0]);
   };
 
-  Scale.prototype.computeB = function() {
+  Scale.prototype.computeIntercept = function() {
     return this.range[0] - (this.m * this.domain[0]);
   };
 
-  Scale.prototype.getStep = function(range) {
+  Scale.prototype.getStep = function(domainDelta) {
     var exp;
-    exp = Math.floor(Math.log(range) / Math.LN10);
+    exp = Math.floor(Math.log10(domainDelta));
     return Math.pow(10, exp);
   };
 
