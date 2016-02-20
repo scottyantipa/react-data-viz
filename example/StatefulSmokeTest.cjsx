@@ -1,4 +1,4 @@
-{Surface, Text, Line, Group}  = ReactCanvas
+{Surface, Text, Line, Group} = require 'react-canvas'
 
 ###
 A little component that has state which can be changed through pressing some buttons

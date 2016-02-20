@@ -1,5 +1,5 @@
 {Surface,
-MultiLine}   = ReactCanvas
+MultiLine} = require 'react-canvas'
 {Axis,
 OrdinalScale,
 LinearScale} = ReactDataViz
@@ -117,6 +117,7 @@ FluorChart = React.createClass
         key    = wellKey
         points = pointsForLine
         style  = style
+        frame  = {{x: 0, y: 0, width: 0, height: 0}}
       />
 
   getCycleScale: ->
@@ -128,7 +129,6 @@ FluorChart = React.createClass
       domain: @props.fluorResults.domain
       roundDomain: true
       range: [0, range1]
-
 
 
 module.exports = FluorChart

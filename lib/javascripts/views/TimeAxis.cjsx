@@ -4,7 +4,7 @@ DateUtils = require '../util/DateUtils.coffee'
 Line,
 Group,
 Text,
-FontFace} = ReactCanvas
+FontFace} = require 'react-canvas'
 
 ###
 Renders a time axis with multiple levels of granularity.  For example,

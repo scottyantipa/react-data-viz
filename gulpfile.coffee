@@ -9,19 +9,7 @@ webserver  = require 'gulp-webserver'
 livereload = require 'gulp-livereload'
 clean      = require 'gulp-clean'
 
-# ReactDataViz.js
-gulp.task 'dist', ->
-  browserify [__dirname + '/lib/index.js']
-    .bundle()
-      .on 'error', (err) ->
-        console.log err.message # should replace with gulp-util?
-        @emit 'end'
-    .pipe source 'ReactDataViz.js'
-    .pipe gulp.dest './dist/'
-    .pipe gulp.dest './public/assets/javascripts'
-    .pipe livereload()
 
-# Vendor js that we get from bower instead of requiring
 jsDepPaths = [
   "./bower_components/jquery/dist/jquery.js"
   "./bower_components/underscore/underscore.js"
@@ -33,8 +21,11 @@ gulp.task 'vendor_js', ->
     .pipe gulp.dest './public/assets/javascripts'
     .pipe livereload()
 
+#
+# TODO Create separate browserify bundles to get react-canvas and react-data-viz out of app.js
+#
 gulp.task 'example_js', ->
-  browserify [__dirname + '/lib/example/index.cjsx']
+  browserify [__dirname + '/example/index.cjsx']
     .bundle()
       .on 'error', (err) ->
         console.log err.message
@@ -45,7 +36,7 @@ gulp.task 'example_js', ->
 
 # Styles
 gulp.task 'app_styles', ->
-  gulp.src './lib/styles/index.styl'
+  gulp.src './example/styles/index.styl'
     .pipe plumber()
     .pipe stylus()
     .pipe rename 'application.css'
@@ -53,9 +44,8 @@ gulp.task 'app_styles', ->
     .pipe livereload()
 
 gulp.task 'watch', ->
-  gulp.watch './lib/example/**/*', ['example_js']
-  gulp.watch ['./lib/javascripts/**/*', './lib/index.js'], ['dist']
-  gulp.watch './lib/styles/*.styl', ['app_styles']
+  gulp.watch './example/**/*', ['example_js']
+  gulp.watch './example/styles/*.styl', ['app_styles']
 
 gulp.task 'webserver', ->
   gulp.src 'public'
@@ -72,12 +62,6 @@ gulp.task 'clean_examples', ->
     .pipe plumber()
     .pipe clean()
 
-gulp.task 'clean_dist', ->
-  gulp.src "./dist/ReactDataViz.js", read: false
-    .pipe plumber()
-    .pipe clean()
-
-
-gulp.task 'default', ['example_js', 'vendor_js', 'app_styles', 'dist']
+gulp.task 'default', ['example_js', 'vendor_js', 'app_styles']
 gulp.task 'serve', ['webserver', 'watch']
-gulp.task 'clean', ['clean_examples', 'clean_dist']
+gulp.task 'clean', ['clean_examples']

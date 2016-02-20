@@ -1,5 +1,5 @@
 {Group,
-Point} = ReactCanvas
+Point} = require 'react-canvas'
 
 ###
 Renders a grid of circles representing a plate
@@ -24,12 +24,6 @@ Wells = React.createClass
     for row in @props.rowScale.domain
       rowProjection = @props.rowScale.map row
       for column in @props.columnScale.domain
-
-        # TODO: implement selection
-        # key = dataManager.keyForWell row, column
-        # isSelected = key is @props.selectedWellKey
-        # continue if @props.drawSelected and not isSelected
-
         columnProjection = @props.columnScale.map column
         radius = 5
         frame =
