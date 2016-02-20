@@ -1,3 +1,9 @@
+#
+# Globally require these so that other components don't have to worry about dir structure
+#
+window.React = require 'react'
+window.ReactDataViz = require '../lib/index.js'
+
 TimeSeriesChart   = require './TimeSeriesChart.cjsx'
 QPCRDashboard     = require './QPCRDashboard.cjsx'
 StatefulSmokeTest = require './StatefulSmokeTest.cjsx'

@@ -3,7 +3,7 @@ Group,
 Text,
 Layer,
 Point,
-Text}        = ReactCanvas
+Text} = require 'react-canvas'
 Plate        = require './plate.cjsx'
 FluorChart   = require './FluorChart.cjsx'
 dataManager  = require './dataManager.coffee'

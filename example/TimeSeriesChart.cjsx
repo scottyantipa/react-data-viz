@@ -5,7 +5,7 @@ LinearScale} = ReactDataViz
 {Surface,
 Group,
 Point,
-MultiLine}  = ReactCanvas
+MultiLine} = require 'react-canvas'
 
 
 ###
