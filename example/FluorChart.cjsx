@@ -1,3 +1,4 @@
+React = require 'react'
 {Surface,
 MultiLine} = require 'react-canvas'
 {Axis,

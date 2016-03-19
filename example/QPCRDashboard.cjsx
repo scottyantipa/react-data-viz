@@ -1,3 +1,4 @@
+React = require 'react'
 {Surface,
 Group,
 Text,

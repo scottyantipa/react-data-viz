@@ -1,3 +1,4 @@
+React = require 'react'
 {Surface, Text, Line, Group} = require 'react-canvas'
 
 ###
@@ -46,7 +47,7 @@ StatefulSmokeTest = React.createClass
         x1: 100
         y1: y
 
-      <Group>
+      <Group key=index>
         <Line
           frame = frame
         />

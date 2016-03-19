@@ -5,6 +5,7 @@ Line,
 Group,
 Text,
 FontFace} = require 'react-canvas'
+React = require 'react'
 
 ###
 Renders a time axis with multiple levels of granularity.  For example,

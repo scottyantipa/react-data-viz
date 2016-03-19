@@ -24,7 +24,7 @@ class Scale
       @m * x + @b
 
   invert: (y) ->
-    (y - @b) / m
+    (y - @b) / @m
 
   diffInRange: (rangeDelta) ->
     Math.abs rangeDelta[1] - rangeDelta[0]

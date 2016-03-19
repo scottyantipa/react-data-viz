@@ -3,7 +3,9 @@
   "version": "0.0.39",
   "main": "lib/index",
   "dependencies": {
-    "react-canvas": "https://github.com/scottyantipa/react-canvas/tarball/master",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "react-canvas": "git+https://git@github.com/scottyantipa/react-canvas#rel-0.0.2",
     "cjsxify": "0.3.0"
   },
   "devDependencies": {

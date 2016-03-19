@@ -1,3 +1,5 @@
+React = require 'react'
+
 {TimeAxis,
 Axis,
 LinearScale} = ReactDataViz
@@ -115,7 +117,7 @@ TimeSeriesChart = React.createClass
   # Calculate origin, scales, etc
   # Assumes that this is mounted and we can access our parent node
   setChartDimensions: ->
-    $chart = $ @refs.chart.getDOMNode()
+    $chart = $ @refs.chart
     [width, height] = [$chart.width(), $chart.height()]
 
     origin =
