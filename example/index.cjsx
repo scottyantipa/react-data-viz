@@ -1,8 +1,7 @@
-#
-# Globally require these so that other components don't have to worry about dir structure
-#
-window.React = require 'react'
 window.ReactDataViz = require '../lib/index.js'
+
+React = require 'react'
+ReactDOM = require 'react-dom'
 
 TimeSeriesChart   = require './TimeSeriesChart.cjsx'
 QPCRDashboard     = require './QPCRDashboard.cjsx'
@@ -56,4 +55,4 @@ Index = React.createClass
 
 
 $ ->
-  React.render <Index/>, $('body')[0]
+  ReactDOM.render <Index/>, $('#app')[0]

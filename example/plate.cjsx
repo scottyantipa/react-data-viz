@@ -1,7 +1,9 @@
-dataManager  = require './dataManager.coffee'
-Wells        = require './Wells.cjsx'
+React = require 'react'
 {Surface} = require 'react-canvas'
 {OrdinalScale, Axis} = ReactDataViz
+dataManager  = require './dataManager.coffee'
+Wells        = require './Wells.cjsx'
+
 
 ###
 Renders a plate given the number of rows/columns

@@ -1,3 +1,4 @@
+React = require 'react'
 {Group,
 Point} = require 'react-canvas'
 
