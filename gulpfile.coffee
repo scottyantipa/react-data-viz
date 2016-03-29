@@ -44,6 +44,7 @@ gulp.task 'app_styles', ->
     .pipe livereload()
 
 gulp.task 'watch', ->
+  gulp.watch './lib/**/*', ['example_js']
   gulp.watch './example/**/*', ['example_js']
   gulp.watch './example/styles/*.styl', ['app_styles']
 
