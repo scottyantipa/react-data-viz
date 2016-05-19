@@ -1,3 +1,6 @@
+moment = require 'moment'
+_ = require 'underscore'
+
 DateUtils =
 
   # Return the epoch for the middle of a date range

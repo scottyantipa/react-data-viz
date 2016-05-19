@@ -3,10 +3,13 @@
   "version": "0.0.39",
   "main": "lib/index",
   "dependencies": {
+    "cjsxify": "0.3.0",
+    "jquery": "^2.2.3",
+    "moment": "^2.13.0",
     "react": "^0.14.0",
-    "react-dom": "^0.14.0",
     "react-canvas": "git+https://git@github.com/scottyantipa/react-canvas#rel-0.0.2",
-    "cjsxify": "0.3.0"
+    "react-dom": "^0.14.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "coffee-script": "1.9.2",
@@ -22,6 +25,8 @@
     "gulp-clean": "0.3.1"
   },
   "browserify": {
-    "transform": ["cjsxify"]
+    "transform": [
+      "cjsxify"
+    ]
   }
 }
