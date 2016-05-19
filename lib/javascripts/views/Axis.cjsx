@@ -2,6 +2,7 @@
 Line,
 Group} = require 'react-canvas'
 React = require 'react'
+_ = require 'underscore'
 
 ###
 Renders the axis for a chart.  See propTypes for description

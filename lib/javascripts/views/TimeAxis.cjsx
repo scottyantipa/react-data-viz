@@ -6,6 +6,9 @@ Group,
 Text,
 FontFace} = require 'react-canvas'
 React = require 'react'
+moment = require 'moment'
+_ = require 'underscore'
+$ = require 'jquery'
 
 ###
 Renders a time axis with multiple levels of granularity.  For example,
@@ -435,4 +438,3 @@ TimeAxis = React.createClass
 
 
 module.exports = TimeAxis
-
