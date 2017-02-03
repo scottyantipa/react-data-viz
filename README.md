@@ -6,7 +6,7 @@ It depends on [react-canvas](https://github.com/Flipboard/react-canvas) for inte
 
 Here is an example of a simple time chart:
 
-![alt tag](lib/example/example_time_chart.png)
+![alt tag](example/example_time_chart.png)
 
 ```coffeescript
 {TimeAxis,
