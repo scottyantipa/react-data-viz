@@ -39,7 +39,7 @@ TimeSeriesChart = React.createClass
       </div>
       <div
         className = 'chart'
-        ref       = 'chart'
+        ref       = {(node) => @chartNode = node}
       >
         {
           if @state.mounted then @renderChart()
@@ -119,7 +119,7 @@ TimeSeriesChart = React.createClass
   # Calculate origin, scales, etc
   # Assumes that this is mounted and we can access our parent node
   setChartDimensions: ->
-    $chart = $ @refs.chart
+    $chart = $ @chartNode
     [width, height] = [$chart.width(), $chart.height()]
 
     origin =
