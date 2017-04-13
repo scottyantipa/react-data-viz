@@ -1,3 +1,4 @@
+_ = require 'underscore'
 Scale = require './Scale.coffee'
 
 # A scale that linearly maps a domain of discrete values into

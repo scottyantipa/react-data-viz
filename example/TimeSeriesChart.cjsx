@@ -1,3 +1,5 @@
+_ = require 'underscore'
+$ = require 'jquery'
 React = require 'react'
 
 {TimeAxis,

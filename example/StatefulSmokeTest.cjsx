@@ -1,3 +1,4 @@
+_ = require 'underscore'
 React = require 'react'
 {Surface, Text, Line, Group} = require 'react-canvas'
 

@@ -1,3 +1,5 @@
+$ = require 'jquery'
+
 ###
 Responsible for creating/getting/storing data
 ###

@@ -9,18 +9,6 @@ webserver  = require 'gulp-webserver'
 livereload = require 'gulp-livereload'
 clean      = require 'gulp-clean'
 
-
-jsDepPaths = [
-  "./bower_components/jquery/dist/jquery.js"
-  "./bower_components/underscore/underscore.js"
-  "./bower_components/moment/moment.js"
-]
-gulp.task 'vendor_js', ->
-  gulp.src jsDepPaths
-    .pipe concat 'dependencies.js'
-    .pipe gulp.dest './public/assets/javascripts'
-    .pipe livereload()
-
 #
 # TODO Create separate browserify bundles to get react-canvas and react-data-viz out of app.js
 #
@@ -63,6 +51,6 @@ gulp.task 'clean_examples', ->
     .pipe plumber()
     .pipe clean()
 
-gulp.task 'default', ['example_js', 'vendor_js', 'app_styles']
+gulp.task 'default', ['example_js', 'app_styles']
 gulp.task 'serve', ['webserver', 'watch']
 gulp.task 'clean', ['clean_examples']

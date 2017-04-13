@@ -1,3 +1,4 @@
+$ = require 'jquery'
 window.ReactDataViz = require '../lib/index.js'
 
 React = require 'react'

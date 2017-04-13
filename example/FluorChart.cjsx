@@ -1,3 +1,4 @@
+_ = require 'underscore'
 React = require 'react'
 {Surface,
 MultiLine} = require 'react-canvas'
@@ -7,6 +8,7 @@ LinearScale} = ReactDataViz
 ###
 Renders a qCPR line chart showing Fluorescense vs. Cycle
 ###
+
 FluorChart = React.createClass
   displayName: 'Fluorescense'
   axisStyle:

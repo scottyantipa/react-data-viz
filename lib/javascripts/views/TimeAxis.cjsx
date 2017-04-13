@@ -1,3 +1,7 @@
+_ = require 'underscore'
+$ = require 'jquery'
+moment = require 'moment'
+
 Axis      = require './Axis.cjsx'
 DateUtils = require '../util/DateUtils.coffee'
 {measureText,
@@ -435,4 +439,3 @@ TimeAxis = React.createClass
 
 
 module.exports = TimeAxis
-

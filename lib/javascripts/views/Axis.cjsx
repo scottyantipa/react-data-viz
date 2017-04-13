@@ -1,3 +1,4 @@
+_ = require 'underscore'
 {Text,
 Line,
 Group} = require 'react-canvas'
