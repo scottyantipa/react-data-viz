@@ -1,6 +1,6 @@
 {
   "name": "react-data-viz",
-  "version": "0.0.39",
+  "version": "0.0.52",
   "main": "lib/index",
   "dependencies": {
     "cjsxify": "0.3.0",
