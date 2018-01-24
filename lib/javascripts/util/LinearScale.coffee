@@ -1,4 +1,4 @@
-Scale = require './Scale.coffee'
+Scale = require './Scale'
 
 # A scale that linearly maps a continuous
 # domain into a continous range.

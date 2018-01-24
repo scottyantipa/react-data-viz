@@ -8,6 +8,7 @@ plumber    = require 'gulp-plumber'
 webserver  = require 'gulp-webserver'
 livereload = require 'gulp-livereload'
 clean      = require 'gulp-clean'
+cjsx       = require 'gulp-cjsx'
 
 #
 # TODO Create separate browserify bundles to get react-canvas and react-data-viz out of app.js
@@ -21,6 +22,12 @@ gulp.task 'example_js', ->
       .pipe source "application.js"
       .pipe gulp.dest './public/assets/javascripts'
       .pipe livereload()
+
+gulp.task('decaff', () ->
+  gulp.src('./lib/**/*.{coffee,cjsx}')
+    .pipe(cjsx({bare: true}).on('error', console.error))
+    .pipe(gulp.dest('./dist/'))
+)
 
 # Styles
 gulp.task 'app_styles', ->

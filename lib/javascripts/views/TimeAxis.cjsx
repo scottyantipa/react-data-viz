@@ -2,8 +2,8 @@ _ = require 'underscore'
 $ = require 'jquery'
 moment = require 'moment'
 
-Axis      = require './Axis.cjsx'
-DateUtils = require '../util/DateUtils.coffee'
+Axis      = require './Axis'
+DateUtils = require '../util/DateUtils'
 {measureText,
 Line,
 Group,

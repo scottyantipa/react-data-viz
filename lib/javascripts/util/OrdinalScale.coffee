@@ -1,5 +1,5 @@
 _ = require 'underscore'
-Scale = require './Scale.coffee'
+Scale = require './Scale'
 
 # A scale that linearly maps a domain of discrete values into
 # a range of continous values.
