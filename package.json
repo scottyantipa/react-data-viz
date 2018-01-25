@@ -5,7 +5,7 @@
   "dependencies": {
     "cjsxify": "0.3.0",
     "gulp-cjsx": "^4.1.0",
-    "jquery": "^2.2.3",
+    "jquery": "^3.3.1",
     "moment": "^2.13.0",
     "react": "^15.0.0",
     "react-canvas": "git+https://git@github.com/scottyantipa/react-canvas#rel-0.0.3",
