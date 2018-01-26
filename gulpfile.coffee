@@ -14,7 +14,11 @@ cjsx       = require 'gulp-cjsx'
 # TODO Create separate browserify bundles to get react-canvas and react-data-viz out of app.js
 #
 gulp.task 'example_js', ->
-  browserify [__dirname + '/example/index.cjsx']
+  browserify({
+    entries: [__dirname + '/example/index.cjsx'],
+    transform: ["cjsxify"],
+    extensions: ['.js', '.coffee', '.cjsx']
+  })
     .bundle()
       .on 'error', (err) ->
         console.log err.message
