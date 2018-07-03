@@ -1,12 +1,13 @@
-_ = require 'underscore'
 React = require 'react'
+createReactClass = require 'create-react-class'
 {Surface, Text, Line, Group} = require 'react-canvas'
+_ = require 'underscore'
 
 ###
 A little component that has state which can be changed through pressing some buttons
 Purpose is to show that react-canvas does the graph diffing properly and updates the canvas
 ###
-StatefulSmokeTest = React.createClass
+StatefulSmokeTest = createReactClass
 
   render: ->
     textStyle = _.extend({

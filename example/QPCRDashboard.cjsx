@@ -1,4 +1,5 @@
 React = require 'react'
+createReactClass = require 'create-react-class'
 {Surface,
 Group,
 Text,
@@ -9,7 +10,7 @@ Plate        = require './plate.cjsx'
 FluorChart   = require './FluorChart.cjsx'
 dataManager  = require './dataManager.coffee'
 
-QPCRDashboard = React.createClass
+QPCRDashboard = createReactClass
   displayName: 'QPCRDashboard'
   render: ->
     if not @state.fetched

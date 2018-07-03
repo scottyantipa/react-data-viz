@@ -8,14 +8,14 @@
     "jquery": "^3.3.1",
     "moment": "^2.13.0",
     "react": "^15.0.0",
-    "react-canvas": "git+https://git@github.com/scottyantipa/react-canvas#rel-0.0.3",
+    "react-canvas": "git+https://git@github.com/scottyantipa/react-canvas#rel-0.0.4",
     "react-dom": "^15.0.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
     "browserify": "^15.2.0",
     "coffee-script": "1.9.2",
-    "gulp": "3.8.11",
+    "create-react-class": "^15.6.3",
     "gulp-clean": "0.3.1",
     "gulp-concat": "2.2.0",
     "gulp-livereload": "3.8.0",
@@ -23,6 +23,8 @@
     "gulp-rename": "1.2.2",
     "gulp-stylus": "2.0.1",
     "gulp-webserver": "0.9.1",
+    "gulp": "3.8.11",
+    "prop-types": "^15.6.2",
     "vinyl-source-stream": "1.1.0"
   }
 }

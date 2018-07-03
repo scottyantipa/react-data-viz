@@ -1,9 +1,3 @@
-_ = require 'underscore'
-$ = require 'jquery'
-moment = require 'moment'
-
-Axis      = require './Axis'
-DateUtils = require '../util/DateUtils'
 {measureText,
 Line,
 Group,
@@ -11,12 +5,20 @@ Text,
 FontFace} = require 'react-canvas'
 React = require 'react'
 
+createReactClass = require 'create-react-class'
+_ = require 'underscore'
+$ = require 'jquery'
+moment = require 'moment'
+
+Axis      = require './Axis'
+DateUtils = require '../util/DateUtils'
+
 ###
 Renders a time axis with multiple levels of granularity.  For example,
 If days are the smallest grain we can show, it will also render months and years.
 "Ticks" denote a position on the axis.  A "Hash" is a vertical line marking the axis.
 ###
-TimeAxis = React.createClass
+TimeAxis = createReactClass
   displayName: 'TimeAxis'
 
   POSSIBLE_GRAINS: ["second", "minute", "hour", "day" ,"month","year"]
