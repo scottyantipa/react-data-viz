@@ -1,4 +1,4 @@
-var Axis, Group, Line, React, Text, _, ref;
+var Axis, Group, Line, PropTypes, React, Text, _, createReactClass, ref;
 
 _ = require('underscore');
 
@@ -6,30 +6,34 @@ ref = require('react-canvas'), Text = ref.Text, Line = ref.Line, Group = ref.Gro
 
 React = require('react');
 
+PropTypes = require('prop-types');
+
+createReactClass = require('create-react-class');
+
 
 /*
 Renders the axis for a chart.  See propTypes for description
 of how to render x or y axis, place labels, etc.
  */
 
-Axis = React.createClass({displayName: "Axis",
+Axis = createReactClass({
   vert_offset: 10,
   render: function() {
     return React.createElement(Group, null, this.renderLabels(), (this.props.showAxisLine ? this.renderAxisLine() : void 0));
   },
   propTypes: {
-    axis: React.PropTypes.string.isRequired,
-    direction: React.PropTypes.string.isRequired,
-    placement: React.PropTypes.string.isRequired,
-    scale: React.PropTypes.object.isRequired,
-    offset: React.PropTypes.number,
-    otherAxisLength: React.PropTypes.number,
-    origin: React.PropTypes.object,
-    textStyle: React.PropTypes.object,
-    showAxisLine: React.PropTypes.bool,
-    axisLineStyle: React.PropTypes.object,
-    labelForTick: React.PropTypes.func,
-    thickness: React.PropTypes.number
+    axis: PropTypes.string.isRequired,
+    direction: PropTypes.string.isRequired,
+    placement: PropTypes.string.isRequired,
+    scale: PropTypes.object.isRequired,
+    offset: PropTypes.number,
+    otherAxisLength: PropTypes.number,
+    origin: PropTypes.object,
+    textStyle: PropTypes.object,
+    showAxisLine: PropTypes.bool,
+    axisLineStyle: PropTypes.object,
+    labelForTick: PropTypes.func,
+    thickness: PropTypes.number
   },
   getDefaultProps: function() {
     return {

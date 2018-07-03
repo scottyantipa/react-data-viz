@@ -27,7 +27,7 @@ gulp.task 'example_js', ->
       .pipe gulp.dest './public/assets/javascripts'
       .pipe livereload()
 
-gulp.task('decaff', () ->
+gulp.task('decaf', () ->
   gulp.src('./lib/**/*.{coffee,cjsx}')
     .pipe(cjsx({bare: true}).on('error', console.error))
     .pipe(gulp.dest('./dist/'))
@@ -43,7 +43,7 @@ gulp.task 'app_styles', ->
     .pipe livereload()
 
 gulp.task 'watch', ->
-  gulp.watch './lib/**/*', ['example_js']
+  gulp.watch './lib/**/*', ['decaf', 'example_js']
   gulp.watch './example/**/*', ['example_js']
   gulp.watch './example/styles/*.styl', ['app_styles']
 
@@ -62,6 +62,6 @@ gulp.task 'clean_examples', ->
     .pipe plumber()
     .pipe clean()
 
-gulp.task 'default', ['example_js', 'app_styles']
+gulp.task 'default', ['decaf', 'example_js', 'app_styles']
 gulp.task 'serve', ['webserver', 'watch']
 gulp.task 'clean', ['clean_examples']

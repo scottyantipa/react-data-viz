@@ -1,4 +1,10 @@
-var $, Axis, DateUtils, FontFace, Group, Line, React, Text, TimeAxis, _, measureText, moment, ref;
+var $, Axis, DateUtils, FontFace, Group, Line, React, Text, TimeAxis, _, createReactClass, measureText, moment, ref;
+
+ref = require('react-canvas'), measureText = ref.measureText, Line = ref.Line, Group = ref.Group, Text = ref.Text, FontFace = ref.FontFace;
+
+React = require('react');
+
+createReactClass = require('create-react-class');
 
 _ = require('underscore');
 
@@ -10,10 +16,6 @@ Axis = require('./Axis');
 
 DateUtils = require('../util/DateUtils');
 
-ref = require('react-canvas'), measureText = ref.measureText, Line = ref.Line, Group = ref.Group, Text = ref.Text, FontFace = ref.FontFace;
-
-React = require('react');
-
 
 /*
 Renders a time axis with multiple levels of granularity.  For example,
@@ -21,7 +23,7 @@ If days are the smallest grain we can show, it will also render months and years
 "Ticks" denote a position on the axis.  A "Hash" is a vertical line marking the axis.
  */
 
-TimeAxis = React.createClass({
+TimeAxis = createReactClass({
   displayName: 'TimeAxis',
   POSSIBLE_GRAINS: ["second", "minute", "hour", "day", "month", "year"],
   PIXELS_BETWEEN_HASHES: 8,

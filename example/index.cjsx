@@ -2,13 +2,14 @@ $ = require 'jquery'
 window.ReactDataViz = require '../lib/index.js'
 
 React = require 'react'
+createReactClass = require 'create-react-class'
 ReactDOM = require 'react-dom'
 
 TimeSeriesChart   = require './TimeSeriesChart.cjsx'
 QPCRDashboard     = require './QPCRDashboard.cjsx'
 StatefulSmokeTest = require './StatefulSmokeTest.cjsx'
 
-Index = React.createClass
+Index = createReactClass
 
   render: ->
     <div className = 'app'>

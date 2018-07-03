@@ -3,12 +3,14 @@ _ = require 'underscore'
 Line,
 Group} = require 'react-canvas'
 React = require 'react'
+PropTypes = require 'prop-types'
+createReactClass = require 'create-react-class'
 
 ###
 Renders the axis for a chart.  See propTypes for description
 of how to render x or y axis, place labels, etc.
 ###
-Axis = React.createClass
+Axis = createReactClass
 
   vert_offset:  10 # helper for rendering x axis labels
 
@@ -21,18 +23,18 @@ Axis = React.createClass
     </Group>
 
   propTypes:
-    axis:            React.PropTypes.string.isRequired # 'x' or 'y'
-    direction:       React.PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
-    placement:       React.PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
-    scale:           React.PropTypes.object.isRequired
-    offset:          React.PropTypes.number # number in [0,1] describes where to place the whole axis (0 is at origin, 1 is opposite side)
-    otherAxisLength: React.PropTypes.number # e.g. length of x axis if this is the y axis
-    origin:          React.PropTypes.object
-    textStyle:       React.PropTypes.object
-    showAxisLine:    React.PropTypes.bool
-    axisLineStyle:   React.PropTypes.object
-    labelForTick:    React.PropTypes.func
-    thickness:       React.PropTypes.number # y axis width, x axis height
+    axis:            PropTypes.string.isRequired # 'x' or 'y'
+    direction:       PropTypes.string.isRequired # 'left', 'right', 'up', 'down'
+    placement:       PropTypes.string.isRequired # 'above', 'below', 'left', 'right'
+    scale:           PropTypes.object.isRequired
+    offset:          PropTypes.number # number in [0,1] describes where to place the whole axis (0 is at origin, 1 is opposite side)
+    otherAxisLength: PropTypes.number # e.g. length of x axis if this is the y axis
+    origin:          PropTypes.object
+    textStyle:       PropTypes.object
+    showAxisLine:    PropTypes.bool
+    axisLineStyle:   PropTypes.object
+    labelForTick:    PropTypes.func
+    thickness:       PropTypes.number # y axis width, x axis height
 
   getDefaultProps: ->
     origin: {x: 0, y: 0}

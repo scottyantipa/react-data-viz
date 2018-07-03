@@ -1,6 +1,5 @@
 node_modules
-bower_components
 public/**/*.js
 public/**/*.css
-
-.DS_Store
+package-lock.json
+**/.DS_Store

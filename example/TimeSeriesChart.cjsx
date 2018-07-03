@@ -1,6 +1,7 @@
+React = require 'react'
+createReactClass = require 'create-react-class'
 _ = require 'underscore'
 $ = require 'jquery'
-React = require 'react'
 
 {TimeAxis,
 Axis,
@@ -18,7 +19,7 @@ It has optinos for changing the range of time and range of
 temperature (y axis).
 This is not exposed by ReactDataViz because it is currently a fairly specific component.
 ###
-TimeSeriesChart = React.createClass
+TimeSeriesChart = createReactClass
   displayName: 'TimeSeriesChart'
   axisThickness: 100
 

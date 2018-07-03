@@ -1,4 +1,5 @@
 React = require 'react'
+createReactClass = require 'create-react-class'
 {Surface} = require 'react-canvas'
 {OrdinalScale, Axis} = ReactDataViz
 dataManager  = require './dataManager.coffee'
@@ -8,7 +9,7 @@ Wells        = require './Wells.cjsx'
 ###
 Renders a plate given the number of rows/columns
 ###
-Plate = React.createClass
+Plate = createReactClass
   render: ->
     <Surface
       top    = 0

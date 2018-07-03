@@ -1,11 +1,12 @@
 React = require 'react'
+createReactClass = require 'create-react-class'
 {Group,
 Point} = require 'react-canvas'
 
 ###
 Renders a grid of circles representing a plate
 ###
-Wells = React.createClass
+Wells = createReactClass
   displayName: 'Wells'
   wellStyle:
     opacity:     .5
